@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
@@ -17,37 +18,29 @@ namespace BBKRPGSimulator.Script.Commands
         /// 显示脚本命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandShowGut(SimulatorContext context) : base(context)
+        public CommandShowGut(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
+            var start = data.Offset;
+            var code = data.Array;
+            int i = 4;
+            while (code[start + i] != 0)
+            {
+                ++i;
+            }
+            Length = i + 1;
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            int i = 4;
-            while (code[start + i] != 0)
-            {
-                ++i;
-            }
-            return start + i + 1;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandShowGutOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandShowGutOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 显示脚本命令的操作
-        /// </summary>
-        private class CommandShowGutOperate : Operate
+        public class CommandShowGutOperate : Operate
         {
             #region 字段
 
@@ -61,7 +54,10 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private readonly Rectangle _textArea;
 
-            private byte[] _code;
+            /// <summary>
+            /// 脚本的图片
+            /// </summary>
+            private readonly ResImage _topImg, _bottomImg;
 
             /// <summary>
             /// 当前显示的Y坐标
@@ -83,17 +79,10 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private int _speed = 1;
 
-            private int _start;
-
             /// <summary>
             /// 显示时间计数
             /// </summary>
             private long _timeCount = 0;
-
-            /// <summary>
-            /// 脚本的图片
-            /// </summary>
-            private ResImage _topImg, _bottomImg;
 
             #endregion 字段
 
@@ -105,16 +94,10 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 构造函数
 
-            /// <summary>
-            /// 显示脚本命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandShowGutOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandShowGutOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                var start = data.Offset;
+                var code = data.Array;
 
                 int topImgIndex = code[start] & 0xFF | code[start + 1] << 8 & 0xFF00;
                 int bottomImgIndex = code[start + 2] & 0xFF | code[start + 3] << 8 & 0xFF00;
@@ -125,6 +108,12 @@ namespace BBKRPGSimulator.Script.Commands
 
                 int rectTop = _topImg != null ? _topImg.Height : 0;
                 _textArea = new Rectangle(0, rectTop, 160, _curShowY - rectTop);
+
+                _skip = false;
+                _interval = 50;
+                _timeCount = 0;
+                _speed = 1;
+                _curShowY = _bottomImg != null ? 96 - _bottomImg.Height : 96;
             }
 
             #endregion 构造函数
@@ -163,16 +152,6 @@ namespace BBKRPGSimulator.Script.Commands
                 }
                 _speed = 1;
                 _interval = 50;
-            }
-
-            public override bool Process()
-            {
-                _skip = false;
-                _interval = 50;
-                _timeCount = 0;
-                _speed = 1;
-                _curShowY = _bottomImg != null ? 96 - _bottomImg.Height : 96;
-                return true;
             }
 
             public override bool Update(long delta)

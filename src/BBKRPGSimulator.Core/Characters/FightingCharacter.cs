@@ -82,7 +82,7 @@ namespace BBKRPGSimulator.Characters
         /// 异常状态持续时间
         /// 毒乱封眠
         /// </summary>
-        protected int[] DeBuffRound { get; } = new int[4];
+        public int[] DeBuffRound { get; } = new int[4];
 
         /// <summary>
         /// 免疫异常状态，不同装备可能具有相同的免疫效果，叠加之

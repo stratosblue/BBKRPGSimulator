@@ -1,4 +1,4 @@
-﻿using BBKRPGSimulator.Graphics;
+﻿using System;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -13,72 +13,36 @@ namespace BBKRPGSimulator.Script.Commands
         /// 创建角色命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandCreateCharacter(SimulatorContext context) : base(context)
+        public CommandCreateCharacter(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
         {
         }
+
+        protected override Operate ProcessAndGetOperate() => new CommandCreateCharacterOperate(Data, Context);
 
         #endregion 构造函数
 
-        #region 方法
-
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 6;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandCreateCharacterOperate(Context, code, start);
-        }
-
-        #endregion 方法
-
         #region 类
 
-        /// <summary>
-        /// 创建角色命令的操作
-        /// </summary>
-        private class CommandCreateCharacterOperate : OperateDrawOnce
+        public class CommandCreateCharacterOperate : OperateDrawScene
         {
             #region 字段
 
-            private byte[] _code;
-            private int _start;
+            private readonly int _id, _x, _y;
 
             #endregion 字段
 
             #region 构造函数
 
-            /// <summary>
-            /// 创建角色命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandCreateCharacterOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandCreateCharacterOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                _id = data.Get2BytesUInt(0);
+                _x = data.Get2BytesUInt(2);
+                _y = data.Get2BytesUInt(4);
+
+                Context.PlayContext.CreateActor(_id, _x, _y);
             }
 
             #endregion 构造函数
-
-            #region 方法
-
-            public override void DrawOnce(ICanvas canvas)
-            {
-                Context.SceneMap.DrawScene(canvas);
-            }
-
-            public override bool Process()
-            {
-                Context.PlayContext.CreateActor(_code.Get2BytesUInt(_start),
-                            _code.Get2BytesUInt(_start + 2),
-                            _code.Get2BytesUInt(_start + 4));
-                return true;
-            }
-
-            #endregion 方法
         }
 
         #endregion 类

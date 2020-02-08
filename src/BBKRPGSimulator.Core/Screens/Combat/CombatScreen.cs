@@ -570,6 +570,7 @@ namespace BBKRPGSimulator.Screens.Combat
                                 // 获得经验
                                 if (item.IsAlive)
                                 {
+                                    //TODO 完成连续升级
                                     if (item.Level >= item.LevelupChain.MaxLevel) // 满级
                                         break;
                                     int nextExp = item.LevelupChain.GetNextLevelExp(item.Level);

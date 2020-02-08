@@ -11,6 +11,8 @@
 
 这是当时网上找到的[压缩包](https://github.com/StratosBlue/BBKRPGSimulator/blob/master/ref/fmj_pc.rar), 好像[github](https://github.com/jacky14/fmj_pc)上也有, 内容应该是一样的; 
 
+发现[另一个](https://gitee.com/bgwp/fmj.kt)较完善的版本。
+
 ## 效果图
 
 ![效果图1](https://github.com/StratosBlue/BBKRPGSimulator/blob/master/picture/1.png)

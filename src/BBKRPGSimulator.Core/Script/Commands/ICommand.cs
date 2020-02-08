@@ -5,24 +5,23 @@
     /// </summary>
     internal interface ICommand
     {
+        #region 属性
+
+        /// <summary>
+        /// 命令的数据长度
+        /// </summary>
+        int Length { get; }
+
+        #endregion 属性
+
         #region 方法
 
         /// <summary>
-        /// 得到下一条指令的位置
-        /// 小于0结束，大于0为下一条指令的位置
+        /// 处理一条指令
+        /// true继续执行Update&Draw;false指令执行完毕
         /// </summary>
-        /// <param name="code">指令缓冲区</param>
-        /// <param name="start">要执行的指令的数据开始位置</param>
-        /// <returns>小于0结束，大于0为下一条指令的位置</returns>
-        int GetNextPos(byte[] code, int start);
-
-        /// <summary>
-        /// 获取操作
-        /// </summary>
-        /// <param name="code">指令缓冲区</param>
-        /// <param name="start">要执行的指令的数据开始位置</param>
-        /// <returns>操作</returns>
-        Operate GetOperate(byte[] code, int start);
+        /// <returns></returns>
+        Operate Process();
 
         #endregion 方法
     }

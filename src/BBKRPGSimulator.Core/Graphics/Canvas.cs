@@ -141,7 +141,7 @@ namespace BBKRPGSimulator.Graphics
             }
             else
             {
-                Background.DrawRectangle(paint.Color, left, top, width, height);
+                Background.FillRectangle(paint.Color, left, top, width, height);
             }
         }
 

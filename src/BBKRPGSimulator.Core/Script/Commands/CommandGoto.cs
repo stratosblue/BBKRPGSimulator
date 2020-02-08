@@ -1,4 +1,6 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 跳转命令
@@ -11,61 +13,20 @@
         /// 跳转命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandGoto(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandGoto(ArraySegment<byte> data, SimulatorContext context) : base(data, 2, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 2;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandGotoOperate(Context, code, start);
+            var address = Data.Get2BytesUInt(0);
+            Context.ScriptProcess.GotoAddress(address);
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 跳转命令的操作
-        /// </summary>
-        private class CommandGotoOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            public CommandGotoOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                Context.ScriptProcess.GotoAddress(_code.Get2BytesUInt(_start));
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

@@ -382,8 +382,16 @@ namespace BBKRPGSimulator.Characters
             Direction = (Direction)binaryReader.ReadInt32();
             SetStep(binaryReader.ReadInt32());
             SetPosInMap(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-            MagicChain = Context.LibData.GetMagicChain(binaryReader.ReadInt32());
-            MagicChain.LearnCount = binaryReader.ReadInt32();
+
+            var magicChainIndex = binaryReader.ReadInt32();
+            var magicLearnCount = binaryReader.ReadInt32();
+
+            if (magicChainIndex >= 0)
+            {
+                MagicChain = Context.LibData.GetMagicChain(magicChainIndex);
+                MagicChain.LearnCount = magicLearnCount;
+            }
+
             Name = binaryReader.ReadString();
             Level = binaryReader.ReadInt32();
             MaxHP = binaryReader.ReadInt32();
@@ -398,7 +406,8 @@ namespace BBKRPGSimulator.Characters
             CurrentExp = binaryReader.ReadInt32();
             for (int i = 0; i < 8; i++)
             {
-                int type = binaryReader.ReadInt32(), index = binaryReader.ReadInt32();
+                var type = binaryReader.ReadInt32();
+                var index = binaryReader.ReadInt32();
                 if (type != 0 && index != 0)
                 {
                     Equipments[i] = Context.LibData.GetGoods(type, index) as GoodsEquipment;
@@ -415,8 +424,9 @@ namespace BBKRPGSimulator.Characters
             binaryWriter.Write(GetStep());
             binaryWriter.Write(PosInMap.X);
             binaryWriter.Write(PosInMap.Y);
-            binaryWriter.Write(MagicChain.Index);
-            binaryWriter.Write(MagicChain.LearnCount);
+            binaryWriter.Write(MagicChain?.Index ?? -1);
+            binaryWriter.Write(MagicChain?.LearnCount ?? 0);
+
             binaryWriter.Write(Name);
             binaryWriter.Write(Level);
             binaryWriter.Write(MaxHP);

@@ -13,7 +13,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 显示场景名称命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandShowSceneName(SimulatorContext context) : base(context)
+        public CommandShowSceneName(SimulatorContext context) : base(0, context)
         {
         }
 
@@ -21,24 +21,13 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandShowSceneNameOperate(Context);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandShowSceneNameOperate(Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 显示场景名称命令的操作
-        /// </summary>
-        private class CommandShowSceneNameOperate : Operate
+        public class CommandShowSceneNameOperate : Operate
         {
             #region 字段
 
@@ -61,12 +50,11 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 构造函数
 
-            /// <summary>
-            /// 显示场景名称命令的操作
-            /// </summary>
-            /// <param name="context"></param>
             public CommandShowSceneNameOperate(SimulatorContext context) : base(context)
             {
+                _timeCount = 0;
+                _isAnyKeyDown = false;
+                _sceneName = Context.SceneMap.SceneName;
             }
 
             #endregion 构造函数
@@ -79,19 +67,9 @@ namespace BBKRPGSimulator.Script.Commands
                 Context.Util.ShowInformation(canvas, _sceneName);
             }
 
-            public override void OnKeyDown(int key)
-            {
-            }
-
             public override void OnKeyUp(int key)
             {
                 _isAnyKeyDown = true;
-            }
-
-            public override bool Process()
-            {
-                _sceneName = Context.SceneMap.SceneName;
-                return true;
             }
 
             public override bool Update(long delta)

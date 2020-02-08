@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -13,7 +14,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// ???
         /// </summary>
         /// <param name="context"></param>
-        public CommandEnableShowpos(SimulatorContext context) : base(context)
+        public CommandEnableShowpos(SimulatorContext context) : base(0, context)
         {
         }
 
@@ -21,13 +22,10 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
+            Debug.WriteLine($"{nameof(CommandDisableShowpos)} - NotImplementedException return null;");
+            return null;
             throw new NotImplementedException();
         }
 

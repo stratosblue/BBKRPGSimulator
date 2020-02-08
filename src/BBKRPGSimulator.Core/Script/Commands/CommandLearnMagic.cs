@@ -1,4 +1,6 @@
-﻿using BBKRPGSimulator.Graphics;
+﻿using System;
+
+using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
 
 namespace BBKRPGSimulator.Script.Commands
@@ -14,7 +16,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 学习魔法命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandLearnMagic(SimulatorContext context) : base(context)
+        public CommandLearnMagic(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
         {
         }
 
@@ -22,28 +24,15 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 6;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandLearnMagicOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandLearnMagicOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 学习魔法命令的操作
-        /// </summary>
-        private class CommandLearnMagicOperate : Operate
+        public class CommandLearnMagicOperate : Operate
         {
             #region 字段
-
-            private byte[] _code;
 
             /// <summary>
             /// 是否有键按下
@@ -55,28 +44,22 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private long _showTime;
 
-            private int _start;
-
             #endregion 字段
 
             #region 属性
 
+            public ArraySegment<byte> Data { get; }
             private TextRender TextRender => Context.TextRender;
 
             #endregion 属性
 
             #region 构造函数
 
-            /// <summary>
-            /// 学习魔法命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandLearnMagicOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandLearnMagicOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                _isAnyKeyDown = false;
+                _showTime = 0;
+                Data = data;
             }
 
             #endregion 构造函数
@@ -87,25 +70,14 @@ namespace BBKRPGSimulator.Script.Commands
             {
                 //TODO 修正显示
                 TextRender.DrawText(canvas, "学会了魔法:", 0, 0);
-                TextRender.DrawText(canvas, "actorId:" + _code.Get2BytesUInt(_start)
-                        + "t" + _code.Get2BytesUInt(_start + 2)
-                        + "i" + _code.Get2BytesUInt(_start + 4), 0, 16);
-            }
-
-            public override void OnKeyDown(int key)
-            {
+                TextRender.DrawText(canvas, "actorId:" + Data.Get2BytesUInt(0)
+                        + "type" + Data.Get2BytesUInt(2)
+                        + "index" + Data.Get2BytesUInt(4), 0, 16);
             }
 
             public override void OnKeyUp(int key)
             {
                 _isAnyKeyDown = true;
-            }
-
-            public override bool Process()
-            {
-                _isAnyKeyDown = false;
-                _showTime = 0;
-                return true;
             }
 
             public override bool Update(long delta)

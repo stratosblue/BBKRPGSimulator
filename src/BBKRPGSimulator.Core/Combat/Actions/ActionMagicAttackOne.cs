@@ -51,20 +51,24 @@ namespace BBKRPGSimulator.Combat.Actions
 
         public override void PreProccess()
         {
-            // TODO 记下伤害值、异常状态
             ExecutorX = Executor.GetCombatX();
             ExecutorY = Executor.GetCombatY();
             Animation = _magic.Animation;
             Animation.StartAni();
             Animation.SetIteratorNum(2);
             int ohp = Target.HP;
-            if (_magic is MagicAttack)
+            if (_magic is MagicAttack magicAttack)
             {
-                ((MagicAttack)_magic).Use(Executor, Target);
+                magicAttack.Use(Executor, Target);
             }
             TargetX = Target.GetCombatX();
             TargetY = Target.GetCombatY() - Target.FightingSprite.Height / 2;
             RaiseAnimation = new RaiseAnimation(Context, Target.GetCombatX(), Target.GetCombatY(), Target.HP - ohp, 0/*FightingCharacter.BUFF_MASK_DU*/);
+
+            if (_magic is MagicSpecial)
+            {
+                //TODO 完成特殊魔法
+            }
         }
 
         public override string ToString()
@@ -121,9 +125,9 @@ namespace BBKRPGSimulator.Combat.Actions
                 case CombatAnimationState.End:
                     if (!RaiseAnimation.Update(delta))
                     {
-                        if (Target is PlayerCharacter)
+                        if (Target is PlayerCharacter playerCharacter)
                         {
-                            ((PlayerCharacter)Target).SetFrameByState();
+                            playerCharacter.SetFrameByState();
                         }
                         else
                         {

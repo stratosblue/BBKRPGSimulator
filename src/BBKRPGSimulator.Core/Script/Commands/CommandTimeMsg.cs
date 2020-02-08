@@ -1,5 +1,7 @@
 ﻿using System;
 
+using BBKRPGSimulator.Graphics;
+
 namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
@@ -13,29 +15,96 @@ namespace BBKRPGSimulator.Script.Commands
         /// 定时消息？
         /// </summary>
         /// <param name="context"></param>
-        public CommandTimeMsg(SimulatorContext context) : base(context)
+        public CommandTimeMsg(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
+            //TODO 这里还需要验证
+            var start = data.Offset;
+            var code = data.Array;
+
+            int i = 2;
+            while (code[start + i] != 0)
+            {
+                ++i;
+            }
+            Length = i + 1;
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            int i = 2;
-            while (code[start + i] != 0)
-            {
-                ++i;
-            }
-            return start + i + 1;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            throw new NotImplementedException();
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandTimeMsgOperate(Data, Context);
 
         #endregion 方法
+
+        #region 类
+
+        public class CommandTimeMsgOperate : Operate
+        {
+            #region 字段
+
+            private readonly string _message;
+            private readonly int _time;
+
+            private long _countDown;
+            private int _downKey;
+            private bool _isAnyKeyDown = false;
+
+            #endregion 字段
+
+            #region 构造函数
+
+            public CommandTimeMsgOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
+            {
+                var start = data.Offset;
+                var code = data.Array;
+
+                _time = data.Get2BytesUInt(0);
+                _message = code.GetString(start + 2);
+
+                _downKey = SimulatorKeys.KEY_INVALID;
+                _isAnyKeyDown = false;
+                _countDown = _time * 10;
+            }
+
+            #endregion 构造函数
+
+            #region 方法
+
+            public override void Draw(ICanvas canvas)
+            {
+                Context.Util.ShowMessage(canvas, _message);
+            }
+
+            public override void OnKeyDown(int key)
+            {
+                _downKey = key;
+            }
+
+            public override void OnKeyUp(int key)
+            {
+                if (_downKey == key)
+                {
+                    _isAnyKeyDown = true;
+                }
+            }
+
+            public override bool Update(long delta)
+            {
+                if (_countDown != 0)
+                {
+                    _countDown -= delta;
+                    if (_countDown <= 0)
+                    {
+                        return false;
+                    }
+                }
+                return !_isAnyKeyDown;
+            }
+
+            #endregion 方法
+        }
+
+        #endregion 类
     }
 }

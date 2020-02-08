@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 
 using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Goods;
@@ -10,7 +12,7 @@ namespace BBKRPGSimulator.Lib
     /// <summary>
     /// 库文件资源
     /// </summary>
-    internal class DatLib : ContextDependent
+    internal sealed class DatLib : ContextDependent
     {
         #region 字段
 
@@ -84,13 +86,14 @@ namespace BBKRPGSimulator.Lib
         /// </summary>
         private Dictionary<int, int> _dataOffset = new Dictionary<int, int>(2048);
 
-        public DatLib(SimulatorContext context) : base(context)
-        {
-        }
-
         #endregion 字段
 
         #region 属性
+
+        /// <summary>
+        /// 数据的摘要
+        /// </summary>
+        public string Hash { get; private set; }
 
         /// <summary>
         /// lib的名称
@@ -98,6 +101,20 @@ namespace BBKRPGSimulator.Lib
         public string Name { get; private set; }
 
         #endregion 属性
+
+        #region 构造函数
+
+        public DatLib(Stream stream, SimulatorContext context) : base(context)
+        {
+            Load(stream);
+        }
+
+        public DatLib(byte[] data, SimulatorContext context) : base(context)
+        {
+            Load(data);
+        }
+
+        #endregion 构造函数
 
         #region 方法
 
@@ -113,7 +130,8 @@ namespace BBKRPGSimulator.Lib
             ResBase rtn = null;
             int offset = GetDataOffset(resType, type, index);
 
-            if (offset != -1)
+            //TODO 超过索引的资源直接不处理？？？
+            if (offset != -1 && offset < _data.Length)
             {
                 switch (resType)
                 {
@@ -340,24 +358,19 @@ namespace BBKRPGSimulator.Lib
 
         #region 加载
 
-        public void Load(string path)
-        {
-            using (var stream = File.OpenRead(path))
-            {
-                Load(stream);
-            }
-        }
-
-        public void Load(Stream stream)
+        private void Load(Stream stream)
         {
             var buffer = new byte[stream.Length];
             stream.Read(buffer, 0, (int)stream.Length);
             Load(buffer);
         }
 
-        public void Load(byte[] data)
+        private void Load(byte[] data)
         {
             _data = data;
+
+            Hash = BitConverter.ToString(SHA1.Create().ComputeHash(_data)).Replace("-", string.Empty).ToUpperInvariant();
+
             GetAllResOffset();
         }
 

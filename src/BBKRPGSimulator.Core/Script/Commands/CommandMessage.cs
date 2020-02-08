@@ -1,4 +1,6 @@
-﻿using BBKRPGSimulator.Graphics;
+﻿using System;
+
+using BBKRPGSimulator.Graphics;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -13,60 +15,48 @@ namespace BBKRPGSimulator.Script.Commands
         /// 消息命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandMessage(SimulatorContext context) : base(context)
+        public CommandMessage(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
+            var start = data.Offset;
+            var code = data.Array;
+
+            int i = 0;
+            while (code[start + i] != 0) ++i;
+            Length = i + 1;
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            int i = 0;
-            while (code[start + i] != 0) ++i;
-            return start + i + 1;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandMessageOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandMessageOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 消息命令的操作
-        /// </summary>
-        private class CommandMessageOperate : Operate
+        public class CommandMessageOperate : Operate
         {
             #region 字段
 
-            private byte[] _code;
+            /// <summary>
+            /// 显示的消息
+            /// </summary>
+            private readonly byte[] _message;
 
             /// <summary>
             /// 是否有键按下
             /// </summary>
             private bool _isAnyKeyDown;
 
-            /// <summary>
-            /// 显示的消息
-            /// </summary>
-            private byte[] _message;
-
-            private int _start;
-
             #endregion 字段
 
             #region 构造函数
 
-            public CommandMessageOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandMessageOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
-                _message = code.GetStringBytes(start);
+                _message = data.Array.GetStringBytes(data.Offset);
+                _isAnyKeyDown = false;
             }
 
             #endregion 构造函数
@@ -78,19 +68,9 @@ namespace BBKRPGSimulator.Script.Commands
                 Context.Util.ShowMessage(canvas, _message);
             }
 
-            public override void OnKeyDown(int key)
-            {
-            }
-
             public override void OnKeyUp(int key)
             {
                 _isAnyKeyDown = true;
-            }
-
-            public override bool Process()
-            {
-                _isAnyKeyDown = false;
-                return true;
             }
 
             public override bool Update(long delta)

@@ -51,13 +51,18 @@ namespace BBKRPGSimulator.Combat.Actions
 
         public override void PreProccess()
         {
-            // TODO 记下伤害值、异常状态
             Animation = _magic.Animation;
             Animation.StartAni();
             Animation.SetIteratorNum(2);
             TargetX = Target.GetCombatX();
             TargetY = Target.GetCombatY();
-            RaiseAnimation = new RaiseAnimation(Context, Target.GetCombatX(), Target.GetCombatTop(), ((_magic as MagicRestore)?.RestoreHp).GetValueOrDefault(0), 0);
+
+            var oldHp = Target.HP;
+            var magicRestore = (MagicRestore)_magic;
+            magicRestore.Use(Executor, Target);
+            var value = Target.HP - oldHp;
+
+            RaiseAnimation = new RaiseAnimation(Context, Target.GetCombatX(), Target.GetCombatTop(), value, 0);
         }
 
         public override string ToString()

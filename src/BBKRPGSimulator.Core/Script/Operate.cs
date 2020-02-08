@@ -1,3 +1,6 @@
+using System;
+using System.Diagnostics;
+
 using BBKRPGSimulator.Graphics;
 
 namespace BBKRPGSimulator.Script
@@ -11,6 +14,7 @@ namespace BBKRPGSimulator.Script
 
         public Operate(SimulatorContext context) : base(context)
         {
+            DebugLog();
         }
 
         #endregion 构造函数
@@ -21,7 +25,7 @@ namespace BBKRPGSimulator.Script
         /// 绘制到指定画板
         /// </summary>
         /// <param name="canvas"></param>
-        public abstract void Draw(ICanvas canvas);
+        public virtual void Draw(ICanvas canvas) { }
 
         /// <summary>
         /// 是否全屏
@@ -36,19 +40,13 @@ namespace BBKRPGSimulator.Script
         /// 按键按下
         /// </summary>
         /// <param name="key"></param>
-        public abstract void OnKeyDown(int key);
+        public virtual void OnKeyDown(int key) { }
 
         /// <summary>
         /// 按键松开
         /// </summary>
         /// <param name="key"></param>
-        public abstract void OnKeyUp(int key);
-
-        /// <summary>
-        /// 处理一条指令
-        /// </summary>
-        /// <returns>true继续执行Update&Draw;false指令执行完毕</returns>
-        public abstract bool Process();
+        public virtual void OnKeyUp(int key) { }
 
         /// <summary>
         /// 更新
@@ -56,7 +54,13 @@ namespace BBKRPGSimulator.Script
         /// </summary>
         /// <param name="delta"></param>
         /// <returns></returns>
-        public abstract bool Update(long delta);
+        public virtual bool Update(long delta) { return false; }
+
+        [Conditional("DEBUG")]
+        protected void DebugLog()
+        {
+            Debug.WriteLine($"{DateTime.Now}: Operate - {GetType().Name} - {ToString()}");
+        }
 
         #endregion 方法
     }

@@ -23,7 +23,7 @@ namespace BBKRPGSimulator.Scene
         {
             if (newGame)  //开始新游戏
             {
-                Context.CombatManage.DisableCombat();
+                Context.CombatManage.EnableRandomCombat = false;
                 Context.ScriptProcess.ScriptState.InitGlobalVar();
                 Context.ScriptProcess.ScriptState.InitGlobalEvents();
                 Context.SceneMap.SceneNPCs = new NPC[41];
@@ -133,6 +133,7 @@ namespace BBKRPGSimulator.Scene
             {
                 Context.ScriptProcess.ScriptExecutor.Process();
                 Context.ScriptProcess.ScriptExecutor.Update(delta);
+                Context.ScriptProcess.ScriptExecutor.TimerStep(delta);
             }
             else if (Context.CombatManage.IsActive)
             {
@@ -142,6 +143,7 @@ namespace BBKRPGSimulator.Scene
             else
             {
                 Context.SceneMap.Update(delta);
+                Context.ScriptProcess.ScriptExecutor.TimerStep(delta);
             }
         }
 

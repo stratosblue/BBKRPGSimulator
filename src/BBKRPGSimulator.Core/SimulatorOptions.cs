@@ -24,7 +24,7 @@ namespace BBKRPGSimulator
         public byte[] LibData { get; set; }
 
         /// <summary>
-        /// lib位置
+        /// lib位置（相对路径）
         /// LibPath、LibData、LibStream都配置时，优先级为LibData》LibStream都配置时》LibPath
         /// </summary>
         public string LibPath { get; set; }
@@ -40,6 +40,12 @@ namespace BBKRPGSimulator
         #region 属性
 
         /// <summary>
+        /// 按键处理的间隔（毫秒）
+        /// 默认50
+        /// </summary>
+        public int KeyInterval { get; set; } = 50;
+
+        /// <summary>
         /// 按键映射
         /// </summary>
         public Dictionary<int, int> KeyMap { get; set; }
@@ -49,6 +55,11 @@ namespace BBKRPGSimulator
         /// 默认45
         /// </summary>
         public int LoopInterval { get; set; } = 45;
+
+        /// <summary>
+        /// 流提供器，用于保存存档文件
+        /// </summary>
+        public IStreamProvider StreamProvider { get; set; }
 
         #endregion 属性
     }

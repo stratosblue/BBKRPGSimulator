@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using BBKRPGSimulator.Graphics;
+using BBKRPGSimulator.Script.Commands;
 
 namespace BBKRPGSimulator.Script
 {
@@ -12,6 +13,17 @@ namespace BBKRPGSimulator.Script
         #region 字段
 
         /// <summary>
+        /// 命令列表
+        /// </summary>
+        private readonly IReadOnlyList<ICommand> _commands;
+
+        /// <summary>
+        /// mEventIndex[i]等于触发事件i+1时，要执行的Operate在list中的序号，
+        /// -1表示不存在
+        /// </summary>
+        private readonly IReadOnlyList<int> _eventIndex;
+
+        /// <summary>
         /// code数据前的长度
         /// </summary>
         private readonly int _headerLength;
@@ -19,7 +31,7 @@ namespace BBKRPGSimulator.Script
         /// <summary>
         /// address offset --- operate's index of mOperateList
         /// </summary>
-        private readonly Dictionary<int, int> _mapAddrOffsetIndex;
+        private readonly IReadOnlyDictionary<int, int> _mapAddrOffsetIndex;
 
         /// <summary>
         /// 当前正在执行的操作在操作列表中的索引
@@ -27,22 +39,26 @@ namespace BBKRPGSimulator.Script
         private int _curExeOperateIndex;
 
         /// <summary>
-        /// mEventIndex[i]等于触发事件i+1时，要执行的Operate在list中的序号，
-        /// -1表示不存在
+        /// 当前命令的操作
         /// </summary>
-        private int[] _eventIndex;
+        private Operate _currentOperate = null;
 
-        /// <summary>
-        /// 当前是否正在执行 update() draw()
-        /// </summary>
-        private bool _isExeUpdateDraw;
+        private int _timer = 0;
 
-        /// <summary>
-        /// 操作列表
-        /// </summary>
-        private List<Operate> _operateList;
+        private long _timerCounter = 0;
+
+        private int _timerEventId = 0;
 
         #endregion 字段
+
+        #region 属性
+
+        /// <summary>
+        /// 脚本处理器
+        /// </summary>
+        private ScriptProcess ScriptProcess => Context.ScriptProcess;
+
+        #endregion 属性
 
         #region 构造函数
 
@@ -54,12 +70,15 @@ namespace BBKRPGSimulator.Script
         /// <param name="eventIndex">eventIndex[i]等于触发事件i+1时，要执行的Operate在list中的序号</param>
         /// <param name="map">地址偏移-序号</param>
         /// <param name="headerLength">数据长度</param>
-        public ScriptExecutor(SimulatorContext context, List<Operate> list, int[] eventIndex, Dictionary<int, int> map, int headerLength) : base(context)
+        public ScriptExecutor(SimulatorContext context,
+                              IReadOnlyList<ICommand> list,
+                              IReadOnlyList<int> eventIndex,
+                              IReadOnlyDictionary<int, int> map,
+                              int headerLength) : base(context)
         {
-            _operateList = list;
+            _commands = list;
             _eventIndex = eventIndex;
             _curExeOperateIndex = 0;
-            _isExeUpdateDraw = false;
             _mapAddrOffsetIndex = map;
             _headerLength = headerLength;
         }
@@ -68,71 +87,70 @@ namespace BBKRPGSimulator.Script
 
         #region 方法
 
-        public void Draw(ICanvas canvas)
-        {
-            if (_isExeUpdateDraw)
-            {
-                _operateList[_curExeOperateIndex].Draw(canvas);
-            }
-            else
-            {
-                //			mOperateList.get(mLastIndex).draw(canvas);
-            }
-        }
+        public void Draw(ICanvas canvas) => _currentOperate?.Draw(canvas);
 
         public void GotoAddress(int address)
         {
             _curExeOperateIndex = _mapAddrOffsetIndex[address - _headerLength];
-            if (_isExeUpdateDraw)
-            {
-                // 不在Operate.process()中调用的gotoAddress
-                _isExeUpdateDraw = false;
+
+            if (_currentOperate != null)
+            { // 不在Operate.process()中调用的gotoAddress
+                _currentOperate = null;
                 --_curExeOperateIndex;
             }
             else
-            {
-                // 在Operate.process()中调用的gotoAddress
-                Context.ScriptProcess.EnableExecuteScript = false; // mark 下次调用process再执行
+            { // 在Operate.process()中调用的gotoAddress
+              // loong TODO: why?
+                ScriptProcess.EnableExecuteScript = false; // mark 下次调用process再执行
             }
+            ScriptProcess.ScriptRunning = true;
         }
 
-        public void KeyDown(int key)
-        {
-            if (_isExeUpdateDraw)
-            {
-                _operateList[_curExeOperateIndex].OnKeyDown(key);
-            }
-        }
+        public void KeyDown(int key) => _currentOperate?.OnKeyDown(key);
 
-        public void KeyUp(int key)
-        {
-            if (_isExeUpdateDraw)
-            {
-                _operateList[_curExeOperateIndex].OnKeyUp(key);
-            }
-        }
+        public void KeyUp(int key) => _currentOperate?.OnKeyUp(key);
 
         public void Process()
         {
-            if (!_isExeUpdateDraw)
+            if (_currentOperate == null)
             {
-                for (; _curExeOperateIndex < _operateList.Count && Context.ScriptProcess.EnableExecuteScript;)
+                while (_curExeOperateIndex < _commands.Count && ScriptProcess.EnableExecuteScript)
                 {
-                    Operate oper = _operateList[_curExeOperateIndex];
-                    if (oper != null && oper.Process())
+                    var cmd = _commands[_curExeOperateIndex];
+                    _currentOperate = cmd.Process();
+                    if (_currentOperate != null)
                     {
                         // 执行 update draw
-                        _isExeUpdateDraw = true;
                         return;
                     }
-                    if (!Context.ScriptProcess.EnableExecuteScript)
+                    if (!ScriptProcess.EnableExecuteScript)
                     {
-                        Context.ScriptProcess.EnableExecuteScript = true;
+                        ScriptProcess.EnableExecuteScript = true;
                         return;
                     }
                     ++_curExeOperateIndex;
                 }
                 // 正常情况不回执行到这里，脚本最后一句是callback
+            }
+        }
+
+        public void SetTimer(int timer, int eventId)
+        {
+            _timer = timer * 500;
+            _timerCounter = _timer;
+            _timerEventId = eventId;
+        }
+
+        public void TimerStep(long delta)
+        {
+            if (_timer > 0 && _timerEventId > 0)
+            {
+                _timerCounter -= delta;
+                if (_timerCounter <= 0)
+                {
+                    _timerCounter += _timer;
+                    TriggerEvent(_timerEventId);
+                }
             }
         }
 
@@ -144,8 +162,9 @@ namespace BBKRPGSimulator.Script
         /// <returns></returns>
         public bool TriggerEvent(int eventId)
         {
-            if (eventId > _eventIndex.Length)
+            if (eventId > _eventIndex.Count)
             {
+                Stop();
                 return false;
             }
 
@@ -153,23 +172,33 @@ namespace BBKRPGSimulator.Script
             if (index != -1)
             {
                 _curExeOperateIndex = index;
-                _isExeUpdateDraw = false;
+                _currentOperate = null;
+                Start();
                 return true;
             }
+            Stop();
             return false;
         }
 
         public void Update(long delta)
         {
-            if (_isExeUpdateDraw)
+            if (_currentOperate?.Update(delta) == false)
             {
-                if (!_operateList[_curExeOperateIndex].Update(delta))
-                {
-                    // 退出当前操作
-                    _isExeUpdateDraw = false;
-                    ++_curExeOperateIndex;
-                }
+                _currentOperate = null;
+                ++_curExeOperateIndex;
             }
+        }
+
+        private void Start()
+        {
+            ScriptProcess.ScriptRunning = true;
+            ScriptProcess.EnableExecuteScript = true;
+        }
+
+        private void Stop()
+        {
+            ScriptProcess.ScriptRunning = false;
+            ScriptProcess.EnableExecuteScript = false;
         }
 
         #endregion 方法

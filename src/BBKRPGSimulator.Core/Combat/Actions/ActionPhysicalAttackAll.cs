@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 using BBKRPGSimulator.Characters;
@@ -61,13 +60,17 @@ namespace BBKRPGSimulator.Combat.Actions
             for (int i = 0; i < Targets.Count; i++)
             {
                 FightingCharacter fc = Targets[i];
+                if (!fc.IsAlive)
+                {
+                    continue;
+                }
                 damage = Executor.Attack - fc.Defend;
                 if (damage <= 0)
                 {
                     damage = 1;
                 }
-                damage += new Random().Next() % 3;
-                fc.HP = fc.HP - damage;
+                damage += (int)(Context.Random.NextDouble() * 3);
+                fc.HP -= damage;
                 RaiseAnimations.Add(new RaiseAnimation(Context, Targets[i].GetCombatX(), Targets[i].GetCombatY(), -damage, 0));
             }
         }

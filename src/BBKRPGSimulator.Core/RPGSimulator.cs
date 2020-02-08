@@ -17,6 +17,11 @@ namespace BBKRPGSimulator
         #region 事件
 
         /// <summary>
+        /// 请求退出
+        /// </summary>
+        public event EventHandler ExitRequested;
+
+        /// <summary>
         /// 帧所有画面绘制完成，输出画面
         /// </summary>
         public event Action<ImageBuilder> RenderFrame;
@@ -95,7 +100,7 @@ namespace BBKRPGSimulator
         public void KeyReleased(int keyCode)
         {
             int key = GetKey(keyCode);
-            //_context.PlayInfo?.PlayerCharacter?.GainExperience(1000);
+            //_context.PlayContext?.PlayerCharacter?.GainExperience(1000);
             _context.KeyReleased(key);
         }
 
@@ -104,7 +109,7 @@ namespace BBKRPGSimulator
         /// </summary>
         public void Start(SimulatorOptions options)
         {
-            _context = new SimulatorContext(options);
+            _context = new SimulatorContext(this, options);
 
             if (options.KeyMap?.Count > 0)
             {
@@ -134,6 +139,14 @@ namespace BBKRPGSimulator
         public void Stop()
         {
             TokenSource = null;
+        }
+
+        /// <summary>
+        /// 请求退出
+        /// </summary>
+        internal void InvokeExitRequest()
+        {
+            ExitRequested?.Invoke(this, EventArgs.Empty);
         }
 
         #region Internal
@@ -180,6 +193,7 @@ namespace BBKRPGSimulator
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [DebuggerStepThrough]
         private int GetKey(int input)
         {
             if (_keyMap.ContainsKey(input))

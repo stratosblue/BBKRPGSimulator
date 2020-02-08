@@ -1,17 +1,18 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System.Diagnostics;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
-    /// 禁用存档命令
+    /// 未完成的命令
     /// </summary>
-    internal class CommandDisableSave : BaseCommand
+    internal class NotImplementedCommand : BaseCommand
     {
         #region 构造函数
 
         /// <summary>
-        /// 禁用存档命令
+        /// 未完成的命令
         /// </summary>
-        /// <param name="context"></param>
-        public CommandDisableSave(SimulatorContext context) : base(0, context)
+        public NotImplementedCommand(int length) : base(length, null)
         {
         }
 
@@ -21,7 +22,7 @@
 
         protected override Operate ProcessAndGetOperate()
         {
-            Context.PlayContext.DisableSave = true;
+            Debug.WriteLine($"{nameof(NotImplementedCommand)}");
             return null;
         }
 

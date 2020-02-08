@@ -11,7 +11,7 @@
         /// 音乐命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandMusic(SimulatorContext context) : base(context)
+        public CommandMusic(SimulatorContext context) : base(4, context)
         {
         }
 
@@ -19,15 +19,7 @@
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 4;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return null;
-        }
+        protected override Operate ProcessAndGetOperate() => null;
 
         #endregion 方法
     }

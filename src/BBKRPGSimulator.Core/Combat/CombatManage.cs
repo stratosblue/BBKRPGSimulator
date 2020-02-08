@@ -15,11 +15,6 @@ namespace BBKRPGSimulator.Combat
         #region 字段
 
         /// <summary>
-        /// 是否启用随机战斗
-        /// </summary>
-        private bool _enableRandomCombat;
-
-        /// <summary>
         /// 随机战斗
         /// </summary>
         private CombatScreen _randomCombat;
@@ -32,6 +27,11 @@ namespace BBKRPGSimulator.Combat
         #endregion 字段
 
         #region 属性
+
+        /// <summary>
+        /// 是否启用随机战斗
+        /// </summary>
+        public bool EnableRandomCombat { get; set; }
 
         /// <summary>
         /// 当前是否在战斗
@@ -64,24 +64,7 @@ namespace BBKRPGSimulator.Combat
         /// </summary>
         public CombatManage(SimulatorContext context) : base(context)
         {
-            _storyCombat = new CombatScreen(Context, this);
-        }
-
-        /// <summary>
-        /// 关闭随即战斗
-        /// </summary>
-        public void DisableCombat()
-        {
-            _enableRandomCombat = false;
-            _randomCombat = null;
-        }
-
-        /// <summary>
-        /// 开启随即战斗
-        /// </summary>
-        public void EnableCombat()
-        {
-            _enableRandomCombat = true;
+            _randomCombat = new CombatScreen(Context, this);
         }
 
         /// <summary>
@@ -98,11 +81,11 @@ namespace BBKRPGSimulator.Combat
         {
             IsRandomCombat = false;
 
-            _enableRandomCombat = true;
+            EnableRandomCombat = true;
 
-            _randomCombat = new CombatScreen(Context, this);
+            _storyCombat = new CombatScreen(Context, this);
 
-            _randomCombat.EnterStoryCombat(roundMax, monstersType, scr, evtRnds, evts, lossto, winto);
+            _storyCombat.EnterStoryCombat(roundMax, monstersType, scr, evtRnds, evts, lossto, winto);
         }
 
         /// <summary>
@@ -135,7 +118,7 @@ namespace BBKRPGSimulator.Combat
         /// <param name="scrr">右上角图</param>
         public void InitRandomCombat(int[] monstersType, int scrb, int scrl, int scrr)
         {
-            _enableRandomCombat = true;
+            EnableRandomCombat = true;
 
             IsRandomCombat = true;
 
@@ -150,7 +133,7 @@ namespace BBKRPGSimulator.Combat
         /// <returns><code>true</code>新战斗 <code>false</code>不开始战斗</returns>
         public bool StartNewRandomCombat()
         {
-            if (!_enableRandomCombat || _randomCombat == null || Context.Random.Next(Context.PlayContext.CombatProbability) != 0)
+            if (!EnableRandomCombat || _randomCombat == null || Context.Random.Next(Context.PlayContext.CombatProbability) != 0)
             {
                 return false;
             }
@@ -159,7 +142,7 @@ namespace BBKRPGSimulator.Combat
                 return false;
             }
 
-            _enableRandomCombat = true;
+            EnableRandomCombat = true;
 
             _randomCombat.StartNewRandomCombat();
 
@@ -170,9 +153,9 @@ namespace BBKRPGSimulator.Combat
 
         public void Deserialize(BinaryReader binaryReader)
         {
-            _enableRandomCombat = binaryReader.ReadBoolean();
+            EnableRandomCombat = binaryReader.ReadBoolean();
 
-            if (_enableRandomCombat)
+            if (EnableRandomCombat)
             {
                 var enableMonsterTypeCount = binaryReader.ReadInt32();
 
@@ -211,9 +194,9 @@ namespace BBKRPGSimulator.Combat
 
         public void Serialize(BinaryWriter binaryWriter)
         {
-            binaryWriter.Write(_enableRandomCombat);
+            binaryWriter.Write(EnableRandomCombat);
 
-            if (_enableRandomCombat)
+            if (EnableRandomCombat)
             {
                 var enableMonsterTypeCount = (_randomCombat.EnableMonsterType?.Length).GetValueOrDefault(0);
 

@@ -58,7 +58,6 @@ namespace BBKRPGSimulator.Combat.Actions
 
         public override int GetPriority()
         {
-            //HACK 玩家行动速度 * 100？
             return _character.Speed;
         }
 
@@ -91,7 +90,7 @@ namespace BBKRPGSimulator.Combat.Actions
 
         public override void PreProccess()
         {
-            //TODO calc the pos
+            //HACK TODO calc the pos
             ExecutorX = _character.GetCombatX();
             ExecutorY = _character.GetCombatY();
             _frameOffsetY = (96 - ExecutorY) / FRAME_CNT;

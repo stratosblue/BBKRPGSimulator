@@ -5,7 +5,7 @@ namespace BBKRPGSimulator.Script
     /// <summary>
     /// 绘制一次的操作？
     /// </summary>
-    internal abstract class OperateDrawOnce : Operate
+    internal abstract class OperateDrawScene : Operate
     {
         #region 字段
 
@@ -22,7 +22,7 @@ namespace BBKRPGSimulator.Script
         /// 绘制一次的操作？
         /// </summary>
         /// <param name="context"></param>
-        public OperateDrawOnce(SimulatorContext context) : base(context)
+        public OperateDrawScene(SimulatorContext context) : base(context)
         {
         }
 
@@ -32,18 +32,13 @@ namespace BBKRPGSimulator.Script
 
         public override void Draw(ICanvas canvas)
         {
-            DrawOnce(canvas);
+            DrawScene(canvas);
             ++_drawCount;
         }
 
-        public abstract void DrawOnce(ICanvas canvas);
-
-        public override void OnKeyDown(int key)
+        public virtual void DrawScene(ICanvas canvas)
         {
-        }
-
-        public override void OnKeyUp(int key)
-        {
+            Context.SceneMap.DrawScene(canvas);
         }
 
         public override bool Update(long delta)

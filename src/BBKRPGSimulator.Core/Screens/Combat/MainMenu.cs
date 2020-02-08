@@ -16,13 +16,22 @@ namespace BBKRPGSimulator.Screens.Combat
     {
         #region 字段
 
-        private int mCurIconIndex = 1;
-
-        /// 1↑、2←、3↓、4→
-        private ResImage mMenuIcon;
-
+        /// <summary>
         /// 显示角色HP MP的背景图
-        private ResImage mPlayerInfoBg;
+        /// </summary>
+        private readonly ResImage _playerInfoBackground;
+
+        /// <summary>
+        /// 菜单图标
+        /// 1↑、2←、3↓、4→
+        /// </summary>
+        private readonly ResImage _menuIcon;
+
+        /// <summary>
+        /// 当前选项索引
+        /// 1↑、2←、3↓、4→
+        /// </summary>
+        private int _selectedIndex = 1;
 
         #endregion 字段
 
@@ -31,8 +40,8 @@ namespace BBKRPGSimulator.Screens.Combat
         public MainMenu(SimulatorContext context, CombatUI combatUI) : base(context, combatUI)
         {
             _combatUI = combatUI;
-            mMenuIcon = Context.LibData.GetImage(2, 1);
-            mPlayerInfoBg = Context.LibData.GetImage(2, 2);
+            _menuIcon = Context.LibData.GetImage(2, 1);
+            _playerInfoBackground = Context.LibData.GetImage(2, 2);
         }
 
         #endregion 构造函数
@@ -41,8 +50,8 @@ namespace BBKRPGSimulator.Screens.Combat
 
         public override void Draw(ICanvas canvas)
         {
-            mMenuIcon.Draw(canvas, mCurIconIndex, 7, 96 - mMenuIcon.Height);
-            mPlayerInfoBg.Draw(canvas, 1, 49, 66);
+            _menuIcon.Draw(canvas, _selectedIndex, 7, 96 - _menuIcon.Height);
+            _playerInfoBackground.Draw(canvas, 1, 49, 66);
             PlayerCharacter p = _combatUI.PlayerCharacters[_combatUI.CurCharacterIndex];
             _combatUI.HeadImgs[p.Index - 1].Draw(canvas, 1, 50, 63); // 角色头像
             if (p != null)
@@ -64,11 +73,11 @@ namespace BBKRPGSimulator.Screens.Combat
                     {
                         break; // 被封，不能用魔法
                     }
-                    mCurIconIndex = 2;
+                    _selectedIndex = 2;
                     break;
 
                 case SimulatorKeys.KEY_DOWN:
-                    mCurIconIndex = 3;
+                    _selectedIndex = 3;
                     break;
 
                 case SimulatorKeys.KEY_RIGHT:
@@ -76,11 +85,11 @@ namespace BBKRPGSimulator.Screens.Combat
                     { // 只有一人不能合击
                         break;
                     }
-                    mCurIconIndex = 4;
+                    _selectedIndex = 4;
                     break;
 
                 case SimulatorKeys.KEY_UP:
-                    mCurIconIndex = 1;
+                    _selectedIndex = 1;
                     break;
             }
         }
@@ -95,7 +104,7 @@ namespace BBKRPGSimulator.Screens.Combat
                 List<FightingCharacter> listPlayers = new List<FightingCharacter>();
                 listPlayers.AddRange(_combatUI.PlayerCharacters);
 
-                switch (mCurIconIndex)
+                switch (_selectedIndex)
                 {
                     case 1://物理攻击
                            // 攻击全体敌人
@@ -153,7 +162,7 @@ namespace BBKRPGSimulator.Screens.Combat
                                                 (fc) =>
                                                 {
                                                     _combatUI.OnActionSelected(new ActionMagicHelpOne(Context, _combatUI.PlayerCharacters[_combatUI.CurCharacterIndex], fc, magic));
-                                                }, false, _combatUI));
+                                                }, !(magic is MagicAuxiliary), _combatUI));
                                         }
                                     }
                                 }));
@@ -168,7 +177,7 @@ namespace BBKRPGSimulator.Screens.Combat
                                 (fc) =>
                                 {
                                     _combatUI.OnActionSelected(new ActionCoopMagic(Context, _combatUI.PlayerCharacters, fc));
-                                }, false, _combatUI));
+                                }, true, _combatUI));
                         break;
                 }
             }

@@ -1,86 +1,51 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 测试物品数量命令
     /// </summary>
     internal class CommandTestGoodsNum : BaseCommand
     {
+        #region 字段
+
+        private readonly int _type, _index, _num, _addr1, _addr2;
+
+        #endregion 字段
+
         #region 构造函数
 
         /// <summary>
         /// 测试物品数量命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandTestGoodsNum(SimulatorContext context) : base(context)
+        public CommandTestGoodsNum(ArraySegment<byte> data, SimulatorContext context) : base(10, context)
         {
+            _type = data.Get2BytesUInt(0);
+            _index = data.Get2BytesUInt(2);
+            _num = data.Get2BytesUInt(4);
+            _addr1 = data.Get2BytesUInt(6);
+            _addr2 = data.Get2BytesUInt(8);
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 10;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandTestGoodsNumOperate(Context, code, start);
+            int goodsnum = Context.GoodsManage.GetGoodsNum(_type, _index);
+            if (goodsnum == _num)
+            {
+                Context.ScriptProcess.GotoAddress(_addr1);
+            }
+            else if (goodsnum > _num)
+            {
+                Context.ScriptProcess.GotoAddress(_addr2);
+            }
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 测试物品数量命令的操作
-        /// </summary>
-        private class CommandTestGoodsNumOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// 测试物品数量命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandTestGoodsNumOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                int goodsnum = Context.GoodsManage.GetGoodsNum(_code.Get2BytesUInt(_start), _code.Get2BytesUInt(_start + 2));
-                int num = _code.Get2BytesUInt(_start + 4);
-                if (goodsnum == num)
-                {
-                    Context.ScriptProcess.GotoAddress(_code.Get2BytesUInt(_start + 6));
-                }
-                else if (goodsnum > num)
-                {
-                    Context.ScriptProcess.GotoAddress(_code.Get2BytesUInt(_start + 8));
-                }
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

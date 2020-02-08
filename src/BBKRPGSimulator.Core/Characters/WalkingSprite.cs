@@ -127,6 +127,11 @@ namespace BBKRPGSimulator.Characters
             }
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(WalkingSprite)} - Tyep: {Type} - Id: {Id}";
+        }
+
         public void Walk(Direction direction)
         {
             SetDirection(direction);

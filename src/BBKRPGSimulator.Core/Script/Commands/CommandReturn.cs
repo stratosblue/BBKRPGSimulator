@@ -13,20 +13,16 @@ namespace BBKRPGSimulator.Script.Commands
         /// 返回命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandReturn(SimulatorContext context) : base(context)
+        public CommandReturn(SimulatorContext context) : base(0, context)
         {
+            //TODO 完成返回 参照 cmd_return
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,3 @@
-using System;
-
 using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Combat.Anim;
 using BBKRPGSimulator.Graphics;
@@ -67,7 +65,7 @@ namespace BBKRPGSimulator.Combat.Actions
             //{
             //    damage *= 10;
             //}
-            damage += new Random().Next() % 10;
+            damage += (int)(Context.Random.NextDouble() * 10);
             Target.HP = Target.HP - damage;
             RaiseAnimation = new RaiseAnimation(Context, Target.GetCombatLeft(), Target.GetCombatTop(), -damage, 0);
         }

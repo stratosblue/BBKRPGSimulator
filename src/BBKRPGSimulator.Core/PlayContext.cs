@@ -31,6 +31,11 @@ namespace BBKRPGSimulator
         public int CombatProbability { get; set; } = 20;
 
         /// <summary>
+        /// 是否禁止保存
+        /// </summary>
+        public bool DisableSave { get; set; } = false;
+
+        /// <summary>
         /// 玩家金钱
         /// </summary>
         public int Money { get; set; } = 0;

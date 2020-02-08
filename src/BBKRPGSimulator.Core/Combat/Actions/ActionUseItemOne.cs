@@ -53,9 +53,9 @@ namespace BBKRPGSimulator.Combat.Actions
         {
             // TODO 记下伤害值、异常状态
             int hp = 0;
-            if (_goods is GoodsMedicine)
+            if (_goods is GoodsMedicine goodsMedicine)
             {
-                Animation = ((GoodsMedicine)_goods).Animation;
+                Animation = goodsMedicine.Animation;
                 hp = Target.HP;
                 Target.UseMedicine(_goods);
                 hp = Target.HP - hp;

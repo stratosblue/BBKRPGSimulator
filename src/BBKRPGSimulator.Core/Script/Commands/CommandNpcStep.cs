@@ -1,4 +1,6 @@
-﻿using BBKRPGSimulator.Characters;
+﻿using System;
+
+using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Graphics;
 
 namespace BBKRPGSimulator.Script.Commands
@@ -14,7 +16,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 角色脚步命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandNpcStep(SimulatorContext context) : base(context)
+        public CommandNpcStep(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
         {
         }
 
@@ -22,24 +24,13 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 6;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandNpcStepOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandNpcStepOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 角色脚步命令的操作
-        /// </summary>
-        private class CommandNpcStepOperate : Operate
+        public class CommandNpcStepOperate : Operate
         {
             #region 字段
 
@@ -59,8 +50,6 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private readonly int _step;
 
-            private byte[] _code;
-
             /// <summary>
             /// 更新间隔
             /// </summary>
@@ -71,47 +60,19 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private long _processTime = 0;
 
-            private int _start;
-
             #endregion 字段
 
             #region 构造函数
 
-            /// <summary>
-            /// 角色脚步命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandNpcStepOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandNpcStepOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                var start = data.Offset;
+                var code = data.Array;
 
                 _id = code.Get2BytesUInt(start);
                 _faceTo = (Direction)code.Get2BytesUInt(start + 2);
                 _step = code.Get2BytesUInt(start + 4);
-            }
 
-            #endregion 构造函数
-
-            #region 方法
-
-            public override void Draw(ICanvas canvas)
-            {
-                Context.SceneMap.DrawScene(canvas);
-            }
-
-            public override void OnKeyDown(int key)
-            {
-            }
-
-            public override void OnKeyUp(int key)
-            {
-            }
-
-            public override bool Process()
-            {
                 _processTime = 0;
                 if (_id == 0)   //主角动作
                 {
@@ -134,7 +95,15 @@ namespace BBKRPGSimulator.Script.Commands
                         _interval = 0;
                     }
                 }
-                return true;
+            }
+
+            #endregion 构造函数
+
+            #region 方法
+
+            public override void Draw(ICanvas canvas)
+            {
+                Context.SceneMap.DrawScene(canvas);
             }
 
             public override bool Update(long delta)

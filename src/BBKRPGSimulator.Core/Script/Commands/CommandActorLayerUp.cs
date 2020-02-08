@@ -14,37 +14,26 @@ namespace BBKRPGSimulator.Script.Commands
         /// 角色面板升级？
         /// </summary>
         /// <param name="context"></param>
-        public CommandActorLayerUp(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandActorLayerUp(SimulatorContext context) : base(4, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 4;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandActorLayerUpOperate(Context, code, start);
+            return new CommandActorLayerUpOperate(Context);
         }
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 角色面板升级操作？
-        /// </summary>
-        private class CommandActorLayerUpOperate : Operate
+        public class CommandActorLayerUpOperate : Operate
         {
             #region 字段
 
-            private readonly byte[] _code;
-            private readonly int _start;
             private bool _exit = false;
 
             #endregion 字段
@@ -57,16 +46,9 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 构造函数
 
-            /// <summary>
-            /// 角色面板升级操作？
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandActorLayerUpOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandActorLayerUpOperate(SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                _exit = false;
             }
 
             #endregion 构造函数
@@ -79,21 +61,12 @@ namespace BBKRPGSimulator.Script.Commands
                 TextRender.DrawText(canvas, "press cancel to continue", 0, 40);
             }
 
-            public override void OnKeyDown(int key)
-            {
-            }
-
             public override void OnKeyUp(int key)
             {
                 if (key == SimulatorKeys.KEY_CANCEL)
                 {
                     _exit = true;
                 }
-            }
-
-            public override bool Process()
-            {
-                return true;
             }
 
             public override bool Update(long delta)

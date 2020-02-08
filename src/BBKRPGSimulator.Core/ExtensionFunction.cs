@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace BBKRPGSimulator
@@ -158,40 +159,6 @@ namespace BBKRPGSimulator
             return returnByte;
         }
 
-        /// <summary>
-        /// 二维Float数组
-        /// </summary>
-        /// <param name="dimension1">维度1</param>
-        /// <param name="dimension2">维度2</param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static float[][] DyadicArrayFloat(int dimension1, int dimension2)
-        {
-            float[][] returnByte = new float[dimension1][];
-            for (int i = 0; i < dimension1; i++)
-            {
-                returnByte[i] = new float[dimension2];
-            }
-            return returnByte;
-        }
-
-        /// <summary>
-        /// 二维Int数组
-        /// </summary>
-        /// <param name="dimension1">维度1</param>
-        /// <param name="dimension2">维度2</param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static int[][] DyadicArrayInt(int dimension1, int dimension2)
-        {
-            int[][] returnByte = new int[dimension1][];
-            for (int i = 0; i < dimension1; i++)
-            {
-                returnByte[i] = new int[dimension2];
-            }
-            return returnByte;
-        }
-
         #endregion 二维数组的创建
 
         #region Bytes取值操作
@@ -236,13 +203,42 @@ namespace BBKRPGSimulator
         /// 读取一字节有符号整型
         /// </summary>
         /// <param name="data">资源缓冲区</param>
-        /// <param name="start">起始位置</param>
+        /// <param name="offset">起始位置</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static int Get1ByteInt(this byte[] data, int start)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get1ByteInt(this byte[] data, int offset)
         {
-            int i = data[start] & 0x7f;
-            if ((data[start] & 0x80) != 0)
+            int i = data[offset] & 0x7f;
+            if ((data[offset] & 0x80) != 0)
+            {
+                return -i;
+            }
+            return i;
+        }
+
+        /// <summary>
+        /// 读取一字节有符号整型
+        /// </summary>
+        /// <param name="data">资源缓冲区</param>
+        /// <param name="offset">起始位置</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get1ByteInt(this ArraySegment<byte> data, int offset) => data.Array.Get1ByteInt(data.Offset + offset);
+
+        /// <summary>
+        /// 读取两字节有符号整型
+        /// </summary>
+        /// <param name="data">资源缓冲区</param>
+        /// <param name="offset">起始位置</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get2BytesInt(this byte[] data, int offset)
+        {
+            int i = data[offset] & 0xFF | data[offset + 1] << 8 & 0x7F00;
+            if ((data[offset + 1] & 0x80) != 0)
             {
                 return -i;
             }
@@ -253,87 +249,140 @@ namespace BBKRPGSimulator
         /// 读取两字节有符号整型
         /// </summary>
         /// <param name="data">资源缓冲区</param>
-        /// <param name="start">起始位置</param>
+        /// <param name="offset">起始位置</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static int Get2BytesInt(this byte[] data, int start)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get2BytesInt(this ArraySegment<byte> data, int offset) => data.Array.Get2BytesInt(data.Offset + offset);
+
+        /// <summary>
+        /// 读取两字节无符号整型
+        /// </summary>
+        /// <param name="data">资源缓冲区</param>
+        /// <param name="offset">起始位置</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get2BytesUInt(this byte[] data, int offset)
         {
-            int i = data[start] & 0xFF | data[start + 1] << 8 & 0x7F00;
-            if ((data[start + 1] & 0x80) != 0)
-            {
-                return -i;
-            }
-            return i;
+            return data[offset] & 0xFF | data[offset + 1] << 8 & 0xFF00;
         }
 
         /// <summary>
         /// 读取两字节无符号整型
         /// </summary>
         /// <param name="data">资源缓冲区</param>
-        /// <param name="start">起始位置</param>
+        /// <param name="offset">起始位置</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static int Get2BytesUInt(this byte[] data, int start)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get2BytesUInt(this ArraySegment<byte> data, int offset) => data.Array.Get2BytesUInt(data.Offset + offset);
+
+        /// <summary>
+        /// 获取四字节Int
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get4BytesInt(this byte[] data, int offset)
         {
-            return data[start] & 0xFF | data[start + 1] << 8 & 0xFF00;
+            return data[offset] & 0xFF |
+                data[offset + 1] << 8 & 0xFF00 |
+                data[offset + 2] << 16 & 0xFF0000 |
+                data[offset + 3] << 24;
         }
 
         /// <summary>
         /// 获取四字节Int
         /// </summary>
         /// <param name="data"></param>
-        /// <param name="start"></param>
+        /// <param name="offset"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static int Get4BytesInt(this byte[] data, int start)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get4BytesInt(this ArraySegment<byte> data, int offset) => data.Array.Get4BytesInt(data.Offset + offset);
+
+        /// <summary>
+        /// 获得GBK编码的字符串
+        /// </summary>
+        /// <param name="data">资源缓冲区</param>
+        /// <param name="offset">起始位置</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetString(this byte[] data, int offset)
         {
-            return data[start] & 0xFF |
-                data[start + 1] << 8 & 0xFF00 |
-                data[start + 2] << 16 & 0xFF0000 |
-                data[start + 3] << 24;
+            byte[] strbyte = data.GetStringBytes(offset);
+
+            return GB2312Encoding.GetString(strbyte).TrimEnd('\0');
         }
 
         /// <summary>
         /// 获得GBK编码的字符串
         /// </summary>
         /// <param name="data">资源缓冲区</param>
-        /// <param name="start">起始位置</param>
+        /// <param name="offset">起始位置</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static string GetString(this byte[] data, int start)
-        {
-            try
-            {
-                byte[] strbyte = data.GetStringBytes(start);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetString(this ArraySegment<byte> data, int offset) => data.Array.GetString(data.Offset + offset);
 
-                return GB2312Encoding.GetString(strbyte).TrimEnd('\0');
-            }
-            catch (Exception ex)
+        /// <summary>
+        /// 获取字符串字节信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] GetStringBytes(this byte[] data, int offset)
+        {
+            int i = 0;
+            while (data[offset + i] != 0)
             {
-                Debug.WriteLine(ex);
+                ++i;
             }
-            return string.Empty;
+
+            byte[] result = new byte[++i];
+            Array.Copy(data, offset, result, 0, i);
+            return result;
         }
 
         /// <summary>
         /// 获取字符串字节信息
         /// </summary>
         /// <param name="data"></param>
-        /// <param name="start"></param>
+        /// <param name="offset"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static byte[] GetStringBytes(this byte[] data, int start)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] GetStringBytes(this ArraySegment<byte> data, int offset) => data.Array.GetStringBytes(data.Offset + offset);
+
+        /// <summary>
+        /// 获取字符串长度
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetStringLength(this byte[] data, int offset)
         {
             int i = 0;
-            while (data[start + i] != 0)
-            {
-                ++i;
-            }
+            while (data[offset + i] != 0) ++i;
 
-            byte[] result = new byte[++i];
-            Array.Copy(data, start, result, 0, i);
-            return result;
+            return ++i;
         }
+
+        /// <summary>
+        /// 获取字符串长度
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetStringLength(this ArraySegment<byte> data, int offset) => data.Array.GetStringLength(data.Offset + offset);
 
         #endregion Bytes取值操作
 

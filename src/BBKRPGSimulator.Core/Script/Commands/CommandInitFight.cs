@@ -1,4 +1,6 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 初始化战斗命令
@@ -11,7 +13,7 @@
         /// 初始化战斗命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandInitFight(SimulatorContext context) : base(context)
+        public CommandInitFight(ArraySegment<byte> data, SimulatorContext context) : base(data, 22, context)
         {
         }
 
@@ -19,64 +21,21 @@
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 22;
-        }
+            int[] _monsterType = new int[8];
+            for (int i = 0; i < 8; i++)
+            {
+                _monsterType[i] = Data.Get2BytesUInt(i * 2);
+            }
 
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandInitFightOperate(Context, code, start);
+            var scrb = Data.Get2BytesUInt(16);
+            var scrl = Data.Get2BytesUInt(18);
+            var scrr = Data.Get2BytesUInt(20);
+            Context.CombatManage.InitRandomCombat(_monsterType, scrb, scrl, scrr);
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 初始化战斗命令的操作
-        /// </summary>
-        private class CommandInitFightOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// 初始化战斗命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandInitFightOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                int[] monsterType = new int[8];
-                for (int i = 0; i < 8; i++)
-                {
-                    monsterType[i] = _code.Get2BytesUInt(_start + i * 2);
-                }
-                Context.CombatManage.InitRandomCombat(monsterType, _code.Get2BytesUInt(_start + 16), _code.Get2BytesUInt(_start + 18), _code.Get2BytesUInt(_start + 20));
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

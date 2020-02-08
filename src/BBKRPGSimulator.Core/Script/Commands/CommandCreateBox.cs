@@ -1,4 +1,6 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 创建箱子命令
@@ -11,70 +13,23 @@
         /// 创建箱子命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandCreateBox(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandCreateBox(ArraySegment<byte> data, SimulatorContext context) : base(data, 8, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 8;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandCreateBoxOperate(Context, code, start);
+            var id = Data.Get2BytesUInt(0);
+            var boxIndex = Data.Get2BytesUInt(2);
+            var x = Data.Get2BytesUInt(4);
+            var y = Data.Get2BytesUInt(6);
+            Context.SceneMap.CreateBox(id, boxIndex, x, y);
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 创建箱子命令的操作
-        /// </summary>
-        private class CommandCreateBoxOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// 创建箱子命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandCreateBoxOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                Context.SceneMap.CreateBox(_code.Get2BytesUInt(_start),
-                        _code.Get2BytesUInt(_start + 2),
-                        _code.Get2BytesUInt(_start + 4),
-                        _code.Get2BytesUInt(_start + 6));
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

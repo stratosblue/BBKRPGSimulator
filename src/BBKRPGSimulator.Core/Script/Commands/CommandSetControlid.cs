@@ -4,7 +4,6 @@ namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 设置控制ID？？
-    /// 伏魔记未用到
     /// </summary>
     internal class CommandSetControlId : BaseCommand
     {
@@ -12,25 +11,22 @@ namespace BBKRPGSimulator.Script.Commands
 
         /// <summary>
         /// 设置控制ID？？
-        /// 伏魔记未用到
         /// </summary>
         /// <param name="context"></param>
-        public CommandSetControlId(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandSetControlId(ArraySegment<byte> data, SimulatorContext context) : base(data, 2, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 2;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
+            var _id = Data.Get2BytesUInt(0);
+            //TODO 完成它
             throw new NotImplementedException();
+            //game.mainScene.setControlPlayer(id);
+            return null;
         }
 
         #endregion 方法

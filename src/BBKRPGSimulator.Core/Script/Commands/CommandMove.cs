@@ -1,7 +1,7 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 using BBKRPGSimulator.Characters;
-using BBKRPGSimulator.Graphics;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -16,32 +16,20 @@ namespace BBKRPGSimulator.Script.Commands
         /// 移动命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandMove(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandMove(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 6;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandMoveOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandMoveOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 移动命令的操作
-        /// </summary>
-        private class CommandMoveOperate : Operate
+        public class CommandMoveOperate : OperateDrawScene
         {
             #region 字段
 
@@ -55,14 +43,12 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private readonly int _destinationY;
 
-            private byte[] _code;
+            private readonly int _npcId;
 
             /// <summary>
             /// 移动间隔
             /// </summary>
             private long _interval = 400;
-
-            private int _start;
 
             /// <summary>
             /// 目标NPC
@@ -73,36 +59,19 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 构造函数
 
-            public CommandMoveOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandMoveOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
-                _destinationX = code.Get2BytesUInt(start + 2);
-                _destinationY = code.Get2BytesUInt(start + 4);
+                _npcId = data.Get2BytesUInt(0);
+                _destinationX = data.Get2BytesUInt(2);
+                _destinationY = data.Get2BytesUInt(4);
+
+                _targetNPC = Context.SceneMap.SceneNPCs[_npcId];
+                _interval = 400;
             }
 
             #endregion 构造函数
 
             #region 方法
-
-            public override void Draw(ICanvas canvas)
-            {
-                Context.SceneMap.DrawScene(canvas);
-            }
-
-            public override void OnKeyDown(int key)
-            {
-            }
-
-            public override void OnKeyUp(int key)
-            {
-            }
-
-            public override bool Process()
-            {
-                _targetNPC = Context.SceneMap.SceneNPCs[_code.Get2BytesUInt(_start)];
-                return true;
-            }
 
             public override bool Update(long delta)
             {

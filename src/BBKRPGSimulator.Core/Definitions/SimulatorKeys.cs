@@ -23,6 +23,11 @@
         public const int KEY_ENTER = 7;
 
         /// <summary>
+        /// 无效
+        /// </summary>
+        public const int KEY_INVALID = -1;
+
+        /// <summary>
         /// 左
         /// </summary>
         public const int KEY_LEFT = 3;

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
@@ -17,36 +18,44 @@ namespace BBKRPGSimulator.Script.Commands
         /// 说话命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandSay(SimulatorContext context) : base(context)
+        public CommandSay(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
+            var start = data.Offset;
+            var code = data.Array;
+
+            int i = 2;
+            while (code[start + i] != 0) ++i;
+            Length = i + 1;
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            int i = 2;
-            while (code[start + i] != 0) ++i;
-            return start + i + 1;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandSayOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandSayOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 说话命令的操作
-        /// </summary>
-        private class CommandSayOperate : Operate
+        public class CommandSayOperate : Operate
         {
             #region 字段
+
+            /// <summary>
+            /// 说话内容
+            /// </summary>
+            private readonly byte[] _content;
+
+            /// <summary>
+            /// 头像图片
+            /// </summary>
+            private readonly ResImage _headImg;
+
+            /// <summary>
+            /// 画笔
+            /// </summary>
+            private readonly Paint _paint = new Paint();
 
             /// <summary>
             /// 有图大框边框
@@ -63,18 +72,6 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private readonly Rectangle _rectangleTop;
 
-            private byte[] _code;
-
-            /// <summary>
-            /// 说话内容
-            /// </summary>
-            private byte[] _content;
-
-            /// <summary>
-            /// 头像图片
-            /// </summary>
-            private ResImage _headImg;
-
             /// <summary>
             /// 接下来的文字索引
             /// </summary>
@@ -90,13 +87,6 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private bool _isAnyKeyDown = false;
 
-            /// <summary>
-            /// 画笔
-            /// </summary>
-            private Paint _paint = new Paint();
-
-            private int _start;
-
             #endregion 字段
 
             #region 属性
@@ -107,16 +97,10 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 构造函数
 
-            /// <summary>
-            /// 说话命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandSayOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandSayOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                var start = data.Offset;
+                var code = data.Array;
 
                 _content = code.GetStringBytes(start + 2);
 
@@ -139,6 +123,9 @@ namespace BBKRPGSimulator.Script.Commands
 
                 _paint.SetColor(Constants.COLOR_BLACK);
                 _paint.SetStyle(PaintStyle.FILL_AND_STROKE);
+
+                _indexOfText = 0;
+                _indexOfNext = 0;
             }
 
             #endregion 构造函数
@@ -177,17 +164,6 @@ namespace BBKRPGSimulator.Script.Commands
             public override void OnKeyDown(int key)
             {
                 _isAnyKeyDown = true;
-            }
-
-            public override void OnKeyUp(int key)
-            {
-            }
-
-            public override bool Process()
-            {
-                _indexOfText = 0;
-                _indexOfNext = 0;
-                return true;
             }
 
             public override bool Update(long delta)

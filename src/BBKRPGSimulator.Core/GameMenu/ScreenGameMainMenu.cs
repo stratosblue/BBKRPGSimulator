@@ -68,8 +68,7 @@ namespace BBKRPGSimulator.GameMenu
 
             _menuItemsText = "属性魔法物品系统".GetBytes();
 
-            //menuItemsRect = new Rectangle(9 + 3, 3 + 16 + 6 - 1 + 3, 32, 64);
-            _menuItemsRect = new Rectangle(12, 27, 32, 64);
+            _menuItemsRect = new Rectangle(9 + 3, 3 + 16 + 6 - 1 + 3, 32, 64);
 
             //TODO ScreenSelectCharacter独立出去后，还未测试多人情况下是否正常运行
             _screenSelectCharacter = new ScreenSelectCharacter(Context, (index) =>
@@ -160,18 +159,22 @@ namespace BBKRPGSimulator.GameMenu
         /// <returns></returns>
         private ScreenMagic GetScreenMagic(int id)
         {
-            return new ScreenMagic(Context, Context.PlayContext.PlayerCharacters[id].MagicChain,
-                (magic) =>
-                {
-                    if (magic is MagicRestore)
+            if (Context.PlayContext.PlayerCharacters[id].MagicChain?.LearnCount > 0)
+            {
+                return new ScreenMagic(Context, Context.PlayContext.PlayerCharacters[id].MagicChain,
+                    (magic) =>
                     {
-                        Context.PushScreen(new ScreenUseMagic(Context, (MagicRestore)magic, Context.PlayContext.PlayerCharacters[id]));
-                    }
-                    else
-                    {
-                        Context.Util.ShowMessage("此处无法使用!", 1000);
-                    }
-                });
+                        if (magic is MagicRestore)
+                        {
+                            Context.PushScreen(new ScreenUseMagic(Context, (MagicRestore)magic, Context.PlayContext.PlayerCharacters[id]));
+                        }
+                        else
+                        {
+                            Context.Util.ShowMessage("此处无法使用!", 1000);
+                        }
+                    });
+            }
+            return null;
         }
 
         #endregion 方法

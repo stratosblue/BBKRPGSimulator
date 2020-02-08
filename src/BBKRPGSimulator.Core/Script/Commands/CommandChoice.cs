@@ -1,4 +1,6 @@
-﻿using BBKRPGSimulator.Graphics;
+﻿using System;
+
+using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
 
 namespace BBKRPGSimulator.Script.Commands
@@ -14,36 +16,29 @@ namespace BBKRPGSimulator.Script.Commands
         /// 选择命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandChoice(SimulatorContext context) : base(context)
+        public CommandChoice(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
+            var start = data.Offset;
+            var code = data.Array;
+
+            int i = 0;
+            while (code[start + i] != 0) ++i;
+            ++i;
+            while (code[start + i] != 0) ++i;
+            Length = i + 3;
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            int i = 0;
-            while (code[start + i] != 0) ++i;
-            ++i;
-            while (code[start + i] != 0) ++i;
-            return start + i + 3;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandChoiceOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandChoiceOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 选择命令的操作
-        /// </summary>
-        private class CommandChoiceOperate : Operate
+        public class CommandChoiceOperate : Operate
         {
             #region 字段
 
@@ -56,6 +51,8 @@ namespace BBKRPGSimulator.Script.Commands
             /// 背景的XY坐标
             /// </summary>
             private readonly int _backgroundX, _backgroundY;
+
+            private int _address;
 
             /// <summary>
             /// 背景图片
@@ -72,8 +69,6 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private byte[] _choice2;
 
-            private byte[] _code;
-
             /// <summary>
             /// 是否已选择
             /// </summary>
@@ -89,8 +84,6 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private int _selectedIndex;
 
-            private int _start;
-
             #endregion 字段
 
             #region 属性
@@ -101,16 +94,10 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 构造函数
 
-            /// <summary>
-            /// 选择命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandChoiceOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandChoiceOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                var start = data.Offset;
+                var code = data.Array;
 
                 _choice1 = code.GetStringBytes(start);
                 _choice2 = code.GetStringBytes(start + _choice1.Length);
@@ -125,6 +112,11 @@ namespace BBKRPGSimulator.Script.Commands
                 _background = Context.Util.GetFrameBitmap(width, 16 * 2 + 6);
                 _backgroundX = (160 - _background.Width) / 2;
                 _backgroundY = (96 - _background.Height) / 2;
+
+                _address = code.Get2BytesUInt(start + _addrOffset);
+
+                _selectedIndex = 0;
+                _hasSelected = false;
             }
 
             #endregion 构造函数
@@ -167,20 +159,13 @@ namespace BBKRPGSimulator.Script.Commands
                 }
             }
 
-            public override bool Process()
-            {
-                _selectedIndex = 0;
-                _hasSelected = false;
-                return true;
-            }
-
             public override bool Update(long delta)
             {
                 if (_hasSelected)
                 {
                     if (_selectedIndex == 1)
                     {
-                        Context.ScriptProcess.GotoAddress(_code.Get2BytesUInt(_start + _addrOffset));
+                        Context.ScriptProcess.GotoAddress(_address);
                     }
                     return false;
                 }

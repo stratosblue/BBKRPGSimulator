@@ -162,7 +162,17 @@ namespace BBKRPGSimulator.GameMenu
                         break;
 
                     case 1:
-                        Context.PushScreen(new ScreenSaveLoadGame(Context, SaveLoadOperate.SAVE));
+                        if (Context.PlayContext.DisableSave)
+                        {
+                            Context.Util.ShowMessage("当前不能存档", 1000);
+                        }
+                        //TODO 完成这里
+                        //else if (game.mainScene.scriptProcess.prev != null)
+                        //        showMessage("副本中不能存档")
+                        else
+                        {
+                            Context.PushScreen(new ScreenSaveLoadGame(Context, SaveLoadOperate.SAVE));
+                        }
                         break;
 
                     case 2:

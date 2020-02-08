@@ -1,4 +1,6 @@
-﻿using BBKRPGSimulator.Goods;
+﻿using System;
+
+using BBKRPGSimulator.Goods;
 using BBKRPGSimulator.Graphics;
 
 namespace BBKRPGSimulator.Script.Commands
@@ -14,7 +16,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 获取物品命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandGainGoods(SimulatorContext context) : base(context)
+        public CommandGainGoods(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         {
         }
 
@@ -22,40 +24,25 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 4;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandGainGoodsOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandGainGoodsOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 获取物品命令的操作
-        /// </summary>
-        private class CommandGainGoodsOperate : Operate
+        public class CommandGainGoodsOperate : Operate
         {
             #region 字段
 
-            private readonly byte[] _code;
+            /// <summary>
+            /// 要获取的物品
+            /// </summary>
+            private readonly BaseGoods _goods;
 
             /// <summary>
             /// 消息
             /// </summary>
             private readonly string _message;
-
-            private readonly int _start;
-
-            /// <summary>
-            /// 要获取的物品
-            /// </summary>
-            private BaseGoods _goods;
 
             /// <summary>
             /// 是否有键按下
@@ -67,26 +54,21 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private long _showTime;
 
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// 获取物品命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandGainGoodsOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandGainGoodsOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                var start = data.Offset;
+                var code = data.Array;
 
                 _goods = Context.LibData.GetGoods(code.Get2BytesUInt(start), code.Get2BytesUInt(start + 2));
                 _message = $"获得:{_goods.Name}";
+
+                _goods.GoodsNum = 1;
+                Context.GoodsManage.AddGoods(_goods.Type, _goods.Index);
+                _showTime = 0;
+                _isAnyKeyPressed = false;
             }
 
-            #endregion 构造函数
+            #endregion 字段
 
             #region 方法
 
@@ -95,22 +77,9 @@ namespace BBKRPGSimulator.Script.Commands
                 Context.Util.ShowMessage(canvas, _message);
             }
 
-            public override void OnKeyDown(int key)
-            {
-            }
-
             public override void OnKeyUp(int key)
             {
                 _isAnyKeyPressed = true;
-            }
-
-            public override bool Process()
-            {
-                _goods.GoodsNum = 1;
-                Context.GoodsManage.AddGoods(_goods.Type, _goods.Index);
-                _showTime = 0;
-                _isAnyKeyPressed = false;
-                return true;
             }
 
             public override bool Update(long delta)

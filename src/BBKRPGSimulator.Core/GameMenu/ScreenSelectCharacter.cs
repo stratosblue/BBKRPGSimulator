@@ -130,7 +130,6 @@ namespace BBKRPGSimulator.GameMenu
                     Context.PushScreen(nextScreen);
                 }
                 //TODO 此处需要确认是否还正常运行
-                throw new Exception("此处需要确认是否还正常运行");
             }
         }
 

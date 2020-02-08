@@ -140,11 +140,7 @@ namespace BBKRPGSimulator.Lib
                     int events = GetEventNum(tx, ty);
                     if (events != 0)
                     {
-                        //TODO 这里改变了Global.COLOR_WHITE的颜色，已注释，暂时还不知道会不会有什么问题
-                        //int color = Global.COLOR_WHITE;
-                        //Global.COLOR_WHITE = 0xFFFF00;
                         TextRender.DrawText(canvas, events.ToString(), sx, sy);
-                        //Global.COLOR_WHITE = color;
                     }
                 }
             }

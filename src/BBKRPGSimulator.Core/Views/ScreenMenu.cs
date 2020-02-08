@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using BBKRPGSimulator.Definitions;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Lib;
@@ -15,17 +17,17 @@ namespace BBKRPGSimulator.GameMenu
         /// <summary>
         /// 光标
         /// </summary>
-        private ResSrs[] _cursors = new ResSrs[2];
+        private readonly IReadOnlyList<ResSrs> _cursors;
 
         /// <summary>
         /// 菜单在屏幕的左和上坐标
         /// </summary>
-        private int _left, _top;
+        private readonly int _left, _top;
 
         /// <summary>
         /// 菜单图片
         /// </summary>
-        private ResImage _menuImg;
+        private readonly ResImage _menuImg;
 
         /// <summary>
         /// 当前选择索引
@@ -43,18 +45,22 @@ namespace BBKRPGSimulator.GameMenu
         public ScreenMenu(SimulatorContext context) : base(context)
         {
             _menuImg = Context.LibData.GetImage(2, 14);
-            _cursors[0] = Context.LibData.GetSrs(1, 250);
-            _cursors[1] = Context.LibData.GetSrs(1, 251);
 
-            //HACK 这里只是暂时兼容
+            var cursors = new List<ResSrs>();
+            for (int i = 250; i <= 255; i++)
             {
-                if (_cursors[1] == null)
+                if (Context.LibData.GetSrs(1, i) is ResSrs resSrs)
                 {
-                    _cursors[1] = _cursors[0];
+                    resSrs.StartAni();
+                    cursors.Add(resSrs);
+                }
+                else
+                {
+                    break;
                 }
             }
-            _cursors[0].StartAni();
-            _cursors[1].StartAni();
+            _cursors = cursors;
+
             _left = (160 - _menuImg.Width) / 2;
             _top = (96 - _menuImg.Height) / 2;
         }
@@ -75,8 +81,17 @@ namespace BBKRPGSimulator.GameMenu
             switch (key)
             {
                 case SimulatorKeys.KEY_UP:
+                    if (_selectedIndex > 0)
+                    {
+                        _selectedIndex--;
+                    }
+                    break;
+
                 case SimulatorKeys.KEY_DOWN:
-                    _selectedIndex = 1 - _selectedIndex;
+                    if (_selectedIndex < _cursors.Count - 1)
+                    {
+                        _selectedIndex++;
+                    }
                     break;
 
                 case SimulatorKeys.KEY_CANCEL:
@@ -98,10 +113,15 @@ namespace BBKRPGSimulator.GameMenu
                     // 读取进度
                     Context.PushScreen(new ScreenSaveLoadGame(Context, SaveLoadOperate.LOAD));
                 }
+                else
+                {
+                    //TODO 这里如何实现？
+                    Context.Util.ShowMessage("模拟器还未兼容该功能！！！", 1500);
+                }
             }
             else if (key == SimulatorKeys.KEY_CANCEL)
             {
-                //TODO 处理游戏退出
+                Context.Simulator.InvokeExitRequest();
             }
         }
 

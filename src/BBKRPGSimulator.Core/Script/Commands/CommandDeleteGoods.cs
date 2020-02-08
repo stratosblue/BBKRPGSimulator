@@ -1,4 +1,6 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 删除物品命令
@@ -11,71 +13,26 @@
         /// 删除物品命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandDeleteGoods(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandDeleteGoods(ArraySegment<byte> data, SimulatorContext context) : base(6, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 6;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandDeleteGoodsOperate(Context, code, start);
+            var type = Data.Get2BytesUInt(0);
+            var index = Data.Get2BytesUInt(2);
+            var address = Data.Get2BytesUInt(2);
+            bool success = Context.GoodsManage.DropGoods(type, index);
+            if (!success)
+            {
+                Context.ScriptProcess.GotoAddress(address);
+            }
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 删除物品命令的操作
-        /// </summary>
-        internal class CommandDeleteGoodsOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// 删除物品命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandDeleteGoodsOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                bool success = Context.GoodsManage.DropGoods(_code.Get2BytesUInt(_start), _code.Get2BytesUInt(_start + 2));
-                if (!success)
-                {
-                    Context.ScriptProcess.GotoAddress(_code.Get2BytesUInt(_start + 2));
-                }
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

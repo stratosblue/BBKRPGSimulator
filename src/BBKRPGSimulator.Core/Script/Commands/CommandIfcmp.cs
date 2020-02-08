@@ -1,4 +1,6 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// Ifcmp命令？？
@@ -11,70 +13,26 @@
         ///  Ifcmp命令？？
         /// </summary>
         /// <param name="context"></param>
-        public CommandIfcmp(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandIfcmp(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 6;
-        }
+            var varIndex = Data.Get2BytesUInt(0);
+            var tartgetValue = Data.Get2BytesUInt(2);
+            var address = Data.Get2BytesUInt(4);
 
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandIfcmpOperate(Context, code, start);
+            if (Context.ScriptProcess.ScriptState.Variables[varIndex] == tartgetValue)
+            {
+                Context.ScriptProcess.GotoAddress(address);
+            }
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// Ifcmp命令的操作？？
-        /// </summary>
-        private class CommandIfcmpOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// Ifcmp命令的操作？？
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandIfcmpOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                if (Context.ScriptProcess.ScriptState.Variables[_code.Get2BytesUInt(_start)] == _code.Get2BytesUInt(_start + 2))
-                {
-                    Context.ScriptProcess.GotoAddress(_code.Get2BytesUInt(_start + 4));
-                }
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

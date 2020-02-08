@@ -7,28 +7,32 @@ namespace BBKRPGSimulator.Script.Commands
     /// </summary>
     internal class CommandSetEventTimer : BaseCommand
     {
+        #region 字段
+
+        private readonly int _timer, _eventId;
+
+        #endregion 字段
+
         #region 构造函数
 
         /// <summary>
         /// 设置事件Timer命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandSetEventTimer(SimulatorContext context) : base(context)
+        public CommandSetEventTimer(ArraySegment<byte> data, SimulatorContext context) : base(4, context)
         {
+            _timer = data.Get2BytesUInt(0);
+            _eventId = data.Get2BytesUInt(2);
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start + 4;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            throw new NotImplementedException();
+            Context.ScriptProcess.ScriptExecutor.SetTimer(_timer, _eventId);
+            return null;
         }
 
         #endregion 方法

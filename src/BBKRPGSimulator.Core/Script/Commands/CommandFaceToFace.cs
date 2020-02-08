@@ -1,7 +1,7 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 using BBKRPGSimulator.Characters;
-using BBKRPGSimulator.Graphics;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -16,7 +16,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 面对面命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandFaceToFace(SimulatorContext context) : base(context)
+        public CommandFaceToFace(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         {
         }
 
@@ -24,59 +24,29 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 4;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandFaceToFaceOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandFaceToFaceOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 面对面命令的操作
-        /// </summary>
-        private class CommandFaceToFaceOperate : OperateDrawOnce
+        public class CommandFaceToFaceOperate : OperateDrawScene
         {
             #region 字段
 
-            private byte[] _code;
-            private int _start;
+            private readonly int _characterId1, _characterId2;
 
             #endregion 字段
 
             #region 构造函数
 
-            /// <summary>
-            /// 面对面命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandFaceToFaceOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandFaceToFaceOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
-            }
+                _characterId1 = data.Get2BytesUInt(0);
+                _characterId2 = data.Get2BytesUInt(2);
 
-            #endregion 构造函数
-
-            #region 方法
-
-            public override void DrawOnce(ICanvas canvas)
-            {
-                Context.SceneMap.DrawScene(canvas);
-            }
-
-            public override bool Process()
-            {
-                Character character1 = GetCharacter(_code.Get2BytesUInt(_start));
-                Character character2 = GetCharacter(_code.Get2BytesUInt(_start + 2));
+                Character character1 = GetCharacter(_characterId1);
+                Character character2 = GetCharacter(_characterId2);
                 Point point1 = character1.PosInMap;
                 Point point2 = character2.PosInMap;
                 if (point1.X > point2.X)
@@ -98,8 +68,11 @@ namespace BBKRPGSimulator.Script.Commands
                         character2.Direction = Direction.North;
                     }
                 }
-                return true;
             }
+
+            #endregion 构造函数
+
+            #region 方法
 
             /// <summary>
             /// 获取指定ID的角色

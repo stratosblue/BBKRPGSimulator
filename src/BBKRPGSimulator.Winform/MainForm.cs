@@ -31,6 +31,15 @@ namespace BBKRPGSimulator.Winform
                 _renderHeight = renderPanel.Height;
                 GetNewGraphics();
             };
+
+            //体验不好。。
+            //_simulator.ExitRequested += (s, e) =>
+            //{
+            //    if (MessageBox.Show(this, "确定退出？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+            //    {
+            //        Application.Exit();
+            //    }
+            //};
         }
 
         #endregion 构造函数
@@ -40,20 +49,26 @@ namespace BBKRPGSimulator.Winform
         [DebuggerStepThrough]
         private void GameViewRenderFrame(ImageBuilder frameData)
         {
-            Invoke(new Action(() =>
+            try
             {
-                if (frameData is NewImageBuilder newImageBuilder)
+                Invoke(new Action(() =>
                 {
-                    _graphics.DrawImage(newImageBuilder.Instance, 0, 0);
-                }
-                else
-                {
-                    using (var image = PlatformExtensionFunction.GetImageFromBuffer(frameData))
+                    if (frameData is NewImageBuilder newImageBuilder)
                     {
-                        _graphics.DrawImage(image, new Rectangle(0, 0, _renderWidth, _renderHeight), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
+                        _graphics.DrawImage(newImageBuilder.Instance, 0, 0);
                     }
-                }
-            }));
+                    else
+                    {
+                        using (var image = PlatformExtensionFunction.GetImageFromBuffer(frameData))
+                        {
+                            _graphics.DrawImage(image, new Rectangle(0, 0, _renderWidth, _renderHeight), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
+                        }
+                    }
+                }));
+            }
+            catch (ObjectDisposedException)
+            {
+            }
         }
 
         private void GetNewGraphics()

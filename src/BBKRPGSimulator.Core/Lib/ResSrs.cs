@@ -23,9 +23,9 @@ namespace BBKRPGSimulator.Lib
 
         /// <summary>
         /// 帧的头定义
-        /// mFrameHeader = new int[mFrameNum][5]
+        /// mFrameHeader = new int[mFrameNum,5]
         /// </summary>
-        private int[][] _frameHeader;
+        private int[,] _frameHeader;
 
         /// <summary>
         /// 图片总数
@@ -72,7 +72,7 @@ namespace BBKRPGSimulator.Lib
         {
             foreach (var item in _showList)
             {
-                _images[_frameHeader[item.Index][4]].Draw(canvas, 1, _frameHeader[item.Index][0] + dx, _frameHeader[item.Index][1] + dy);
+                _images[_frameHeader[item.Index, 4]].Draw(canvas, 1, _frameHeader[item.Index, 0] + dx, _frameHeader[item.Index, 1] + dy);
             }
         }
 
@@ -80,9 +80,9 @@ namespace BBKRPGSimulator.Lib
         {
             foreach (var item in _showList)
             {
-                _images[_frameHeader[item.Index][4]].Draw(canvas, 1,
-                    _frameHeader[item.Index][0] - _frameHeader[0][0] + x,
-                    _frameHeader[item.Index][1] - _frameHeader[0][1] + y);
+                _images[_frameHeader[item.Index, 4]].Draw(canvas, 1,
+                    _frameHeader[item.Index, 0] - _frameHeader[0, 0] + x,
+                    _frameHeader[item.Index, 1] - _frameHeader[0, 1] + y);
             }
         }
 
@@ -96,15 +96,15 @@ namespace BBKRPGSimulator.Lib
             _endFrame = buf[offset + 5] & 0xFF;
 
             int ptr = offset + 6;
-            _frameHeader = ExtensionFunction.DyadicArrayInt(_frameCount, 5);//new int[mFrameNum, 5];
+            _frameHeader = new int[_frameCount, 5];
 
             for (int i = 0; i < _frameCount; i++)
             {
-                _frameHeader[i][0] = buf[ptr++] & 0xFF; // x
-                _frameHeader[i][1] = buf[ptr++] & 0xFF; // y
-                _frameHeader[i][2] = buf[ptr++] & 0xFF; // Show
-                _frameHeader[i][3] = buf[ptr++] & 0xFF; // nShow
-                _frameHeader[i][4] = buf[ptr++] & 0xFF; // 图号
+                _frameHeader[i, 0] = buf[ptr++] & 0xFF; // x
+                _frameHeader[i, 1] = buf[ptr++] & 0xFF; // y
+                _frameHeader[i, 2] = buf[ptr++] & 0xFF; // Show
+                _frameHeader[i, 3] = buf[ptr++] & 0xFF; // nShow
+                _frameHeader[i, 4] = buf[ptr++] & 0xFF; // 图号
             }
 
             // 读入_imageCount个ResImage
@@ -211,11 +211,11 @@ namespace BBKRPGSimulator.Lib
 
             #region 构造函数
 
-            public FrameInfo(int[][] frameHeader, int index)
+            public FrameInfo(int[,] frameHeader, int index)
             {
                 Index = index;
-                Show = frameHeader[index][2];
-                NShow = frameHeader[index][3];
+                Show = frameHeader[index, 2];
+                NShow = frameHeader[index, 3];
             }
 
             #endregion 构造函数

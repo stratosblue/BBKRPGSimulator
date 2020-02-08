@@ -322,9 +322,11 @@ namespace BBKRPGSimulator
                 int id = Map.GetEventNum(x, y);
                 if (id != 0)
                 {
-                    Context.ScriptProcess.ScriptExecutor.TriggerEvent(id + 40);
-                    Context.ScriptProcess.ScriptRunning = true;
-                    return true;
+                    if (Context.ScriptProcess.ScriptExecutor.TriggerEvent(id + 40))
+                    {
+                        Context.ScriptProcess.ScriptRunning = true;
+                        return true;
+                    }
                 }
             }
             // 未触发地图事件，随机战斗

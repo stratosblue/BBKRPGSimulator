@@ -1,4 +1,6 @@
-﻿using BBKRPGSimulator.Graphics;
+﻿using System;
+
+using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Lib;
 
 namespace BBKRPGSimulator.Script.Commands
@@ -14,32 +16,20 @@ namespace BBKRPGSimulator.Script.Commands
         /// 动画命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandMovie(SimulatorContext context) : base(context)
-        {
-        }
+        public CommandMovie(ArraySegment<byte> data, SimulatorContext context) : base(data, 10, context)
+        { }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start + 10;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandMovieOperate(Context, code, start);
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandMovieOperate(Data, Context);
 
         #endregion 方法
 
         #region 类
 
-        /// <summary>
-        /// 动画命令的操作
-        /// </summary>
-        private class CommandMovieOperate : Operate
+        public class CommandMovieOperate : Operate
         {
             #region 字段
 
@@ -53,8 +43,6 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private readonly int _type, _index, _showX, _showY;
 
-            private byte[] _code;
-
             /// <summary>
             /// 是否有键按下
             /// </summary>
@@ -65,28 +53,21 @@ namespace BBKRPGSimulator.Script.Commands
             /// </summary>
             private ResSrs _movie;
 
-            private int _start;
-
             #endregion 字段
 
             #region 构造函数
 
-            /// <summary>
-            /// 动画命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandMovieOperate(SimulatorContext context, byte[] code, int start) : base(context)
+            public CommandMovieOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                _code = code;
-                _start = start;
+                _type = data.Get2BytesUInt(0);
+                _index = data.Get2BytesUInt(2);
+                _showX = data.Get2BytesUInt(4);
+                _showY = data.Get2BytesUInt(6);
+                _control = data.Get2BytesUInt(8);
 
-                _type = code.Get2BytesUInt(start);
-                _index = code.Get2BytesUInt(start + 2);
-                _showX = code.Get2BytesUInt(start + 4);
-                _showY = code.Get2BytesUInt(start + 6);
-                _control = code.Get2BytesUInt(start + 8);
+                _movie = Context.LibData.GetSrs(_type, _index);
+                _movie.SetIteratorNum(5);
+                _movie.StartAni();
             }
 
             #endregion 构造函数
@@ -102,21 +83,9 @@ namespace BBKRPGSimulator.Script.Commands
                 _movie.Draw(canvas, _showX, _showY);
             }
 
-            public override void OnKeyDown(int key)
-            {
-            }
-
             public override void OnKeyUp(int key)
             {
                 _isAnyKeyPressed = true;
-            }
-
-            public override bool Process()
-            {
-                _movie = Context.LibData.GetSrs(_type, _index);
-                _movie.SetIteratorNum(5);
-                _movie.StartAni();
-                return true;
             }
 
             public override bool Update(long delta)

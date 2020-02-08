@@ -38,21 +38,16 @@ namespace BBKRPGSimulator.Magic
 
         #region 方法
 
-        /// <summary>
-        /// 使用
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="target"></param>
-        public void Use(PlayerCharacter user, PlayerCharacter target)
+        public override void Use(FightingCharacter user, FightingCharacter target)
         {
             if (user.MP < CostMp)
             {
                 return;
             }
 
-            user.MP = user.MP - CostMp;
+            user.MP -= CostMp;
 
-            target.HP = target.HP + RestoreHp;
+            target.HP += RestoreHp;
             if (target.HP > target.MaxHP)
             {
                 target.HP = target.MaxHP;

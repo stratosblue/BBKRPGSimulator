@@ -1,4 +1,4 @@
-﻿using System;
+﻿using BBKRPGSimulator.GameMenu;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -13,7 +13,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 存档命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandGameSave(SimulatorContext context) : base(context)
+        public CommandGameSave(SimulatorContext context) : base(0, context)
         {
         }
 
@@ -21,16 +21,39 @@ namespace BBKRPGSimulator.Script.Commands
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
-        {
-            return start;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            throw new NotImplementedException();
-        }
+        protected override Operate ProcessAndGetOperate() => new CommandGameSaveOperate(Context);
 
         #endregion 方法
+
+        #region 类
+
+        public class CommandGameSaveOperate : Operate
+        {
+            #region 字段
+
+            private bool _end = false;
+
+            public CommandGameSaveOperate(SimulatorContext context) : base(context)
+            {
+                _end = false;
+                Context.PushScreen(new ScreenSaveLoadGame(Context, SaveLoadOperate.SAVE)
+                {
+                    CallBack = () => _end = true
+                });
+            }
+
+            #endregion 字段
+
+            #region 方法
+
+            public override bool Update(long delta)
+            {
+                return !_end;
+            }
+
+            #endregion 方法
+        }
+
+        #endregion 类
     }
 }

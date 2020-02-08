@@ -11,7 +11,7 @@
         /// 启用随机战斗命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandFightEnable(SimulatorContext context) : base(context)
+        public CommandFightEnable(SimulatorContext context) : base(0, context)
         {
         }
 
@@ -19,44 +19,12 @@
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            return start;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandFightEnableOperate(Context);
+            Context.CombatManage.EnableRandomCombat = true;
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 启用随机战斗命令的操作
-        /// </summary>
-        private class CommandFightEnableOperate : OperateAdapter
-        {
-            #region 构造函数
-
-            public CommandFightEnableOperate(SimulatorContext context) : base(context)
-            {
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                Context.CombatManage.EnableCombat();
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

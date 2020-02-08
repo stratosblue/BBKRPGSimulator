@@ -1,82 +1,49 @@
-﻿namespace BBKRPGSimulator.Script.Commands
+﻿using System;
+
+namespace BBKRPGSimulator.Script.Commands
 {
     /// <summary>
     /// 设置场景名称命令
     /// </summary>
     internal class CommandSetSceneName : BaseCommand
     {
+        #region 字段
+
+        private readonly string _name;
+
+        #endregion 字段
+
         #region 构造函数
 
         /// <summary>
         /// 设置场景名称命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandSetSceneName(SimulatorContext context) : base(context)
+        public CommandSetSceneName(ArraySegment<byte> data, SimulatorContext context) : base(-1, context)
         {
+            var start = data.Offset;
+            var code = data.Array;
+
+            int i = 0;
+            while (code[start + i] != 0)
+            {
+                ++i;
+            }
+            Length = i + 1;
+
+            _name = code.GetString(start);
         }
 
         #endregion 构造函数
 
         #region 方法
 
-        public override int GetNextPos(byte[] code, int start)
+        protected override Operate ProcessAndGetOperate()
         {
-            int i = 0;
-            while (code[start + i] != 0)
-            {
-                ++i;
-            }
-            return start + i + 1;
-        }
-
-        public override Operate GetOperate(byte[] code, int start)
-        {
-            return new CommandSetSceneNameOperate(Context, code, start);
+            Context.SceneMap.SceneName = _name;
+            return null;
         }
 
         #endregion 方法
-
-        #region 类
-
-        /// <summary>
-        /// 设置场景名称命令的操作
-        /// </summary>
-        private class CommandSetSceneNameOperate : OperateAdapter
-        {
-            #region 字段
-
-            private byte[] _code;
-            private int _start;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            /// <summary>
-            /// 设置场景名称命令的操作
-            /// </summary>
-            /// <param name="context"></param>
-            /// <param name="code"></param>
-            /// <param name="start"></param>
-            public CommandSetSceneNameOperate(SimulatorContext context, byte[] code, int start) : base(context)
-            {
-                _code = code;
-                _start = start;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override bool Process()
-            {
-                Context.SceneMap.SceneName = _code.GetString(_start);
-                return false;
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }

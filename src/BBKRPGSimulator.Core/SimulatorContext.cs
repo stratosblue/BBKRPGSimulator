@@ -30,6 +30,8 @@ namespace BBKRPGSimulator
         /// </summary>
         private static readonly Random _random = new Random();
 
+        private long _lastKeyPressedTime = 0;
+
         #endregion 字段
 
         #region 属性
@@ -48,6 +50,12 @@ namespace BBKRPGSimulator
         /// 图片构建工厂
         /// </summary>
         public IGraphicsFactory GraphicsFactory { get; private set; }
+
+        /// <summary>
+        /// 按键处理的间隔（毫秒）
+        /// 默认50
+        /// </summary>
+        public int KeyInterval { get; set; } = 50;
 
         /// <summary>
         /// Lib数据
@@ -86,6 +94,13 @@ namespace BBKRPGSimulator
         /// </summary>
         public ScriptProcess ScriptProcess { get; private set; }
 
+        public RPGSimulator Simulator { get; }
+
+        /// <summary>
+        /// 流提供器，用于保存存档文件
+        /// </summary>
+        public IStreamProvider StreamProvider { get; set; }
+
         /// <summary>
         /// 文本呈现器
         /// </summary>
@@ -103,21 +118,23 @@ namespace BBKRPGSimulator
         /// <summary>
         /// 上下文状态
         /// </summary>
-        public SimulatorContext(SimulatorOptions options)
+        public SimulatorContext(RPGSimulator simulator, SimulatorOptions options)
         {
-            LibData = new DatLib(this);
+            Simulator = simulator;
+            StreamProvider = options.StreamProvider ?? new BaseDirectoryStreamProvider(Environment.CurrentDirectory);
 
             if (options.LibData != null)
             {
-                LibData.Load(options.LibData);
+                LibData = new DatLib(options.LibData, this);
             }
             else if (options.LibStream != null)
             {
-                LibData.Load(options.LibStream);
+                LibData = new DatLib(options.LibStream, this);
             }
-            else if (!string.IsNullOrEmpty(options.LibPath))
+            else if (!string.IsNullOrEmpty(options.LibPath)
+                     && StreamProvider.GetStream(options.LibPath) is Stream stream)
             {
-                LibData.Load(options.LibPath);
+                LibData = new DatLib(stream, this);
             }
             else
             {
@@ -139,6 +156,7 @@ namespace BBKRPGSimulator
             PlayContext = new PlayContext(this);
 
             LoopInterval = options.LoopInterval;
+            KeyInterval = options.KeyInterval;
         }
 
         #endregion 构造函数
@@ -151,7 +169,12 @@ namespace BBKRPGSimulator
         /// <param name="keyCode"></param>
         public void KeyPressed(int keyCode)
         {
-            ScreenStack.Peek().OnKeyDown(keyCode);
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if (now - _lastKeyPressedTime >= KeyInterval)
+            {
+                ScreenStack.Peek().OnKeyDown(keyCode);
+                _lastKeyPressedTime = now;
+            }
         }
 
         /// <summary>
