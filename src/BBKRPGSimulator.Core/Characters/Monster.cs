@@ -83,14 +83,15 @@ namespace BBKRPGSimulator.Characters
 
         public override void SetData(byte[] buf, int offset)
         {
-            Type = (int)buf[offset] & 0xff;
-            Index = (int)buf[offset + 1] & 0xff;
+            Type = buf[offset] & 0xff;
+            Index = buf[offset + 1] & 0xff;
             ResMagicChain magicChain = Context.LibData.GetMagicChain(buf[offset + 0x2f] & 0xff);
             if (magicChain != null)
             {
-                magicChain.LearnCount = (int)buf[offset + 2] & 0xff;
+                magicChain.LearnFromChain(buf[offset + 2] & 0xff);
                 MagicChain = magicChain;
             }
+
             AddBuff((CombatBuff)(buf[offset + 3] & 0xff));
             AttackBuff = (CombatBuff)(buf[offset + 4] & 0xff);
             BuffLastRound = buf[offset + 0x17] & 0xff;

@@ -1,8 +1,10 @@
 ﻿using System.Drawing;
+using System.IO;
 using System.Linq;
 
 using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Graphics;
+using BBKRPGSimulator.Interface;
 using BBKRPGSimulator.Lib;
 
 namespace BBKRPGSimulator
@@ -10,7 +12,7 @@ namespace BBKRPGSimulator
     /// <summary>
     /// 场景地图
     /// </summary>
-    internal class SceneMap : ContextDependent
+    internal class SceneMap : ContextDependent, ICustomSerializeable
     {
         #region 字段
 
@@ -376,6 +378,52 @@ namespace BBKRPGSimulator
                     continue;
                 }
                 SceneNPCs[i].Update(delta);
+            }
+        }
+
+        public void Deserialize(BinaryReader binaryReader)
+        {
+            SceneName = binaryReader.ReadString();
+            MapType = binaryReader.ReadInt32();
+            MapIndex = binaryReader.ReadInt32();
+            MapScreenX = binaryReader.ReadInt32();
+            MapScreenY = binaryReader.ReadInt32();
+            ScriptType = binaryReader.ReadInt32();
+            ScriptIndex = binaryReader.ReadInt32();
+
+            SceneNPCs = new NPC[41];
+
+            int npcCount = binaryReader.ReadInt32();
+
+            for (int i = 0; i < npcCount; i++)
+            {
+                int npcId = binaryReader.ReadInt32();
+                SceneNPCs[npcId] = new NPC(Context);
+                SceneNPCs[npcId].Deserialize(binaryReader);
+            }
+        }
+
+        public void Serialize(BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(SceneName);
+            binaryWriter.Write(MapType);
+            binaryWriter.Write(MapIndex);
+            binaryWriter.Write(MapScreenX);
+            binaryWriter.Write(MapScreenY);
+            binaryWriter.Write(ScriptType);
+            binaryWriter.Write(ScriptIndex);
+
+            var npcCount = SceneNPCs.Where(m => m != null).Count();
+
+            binaryWriter.Write(npcCount);
+
+            for (int i = 0; i < SceneNPCs.Length; i++)
+            {
+                if (SceneNPCs[i] != null)
+                {
+                    binaryWriter.Write(i);
+                    SceneNPCs[i].Serialize(binaryWriter);
+                }
             }
         }
 

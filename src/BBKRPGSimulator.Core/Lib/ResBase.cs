@@ -58,10 +58,7 @@ namespace BBKRPGSimulator.Lib
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
+        public override bool Equals(object obj) => Equals(obj as ResBase);
 
         /// <summary>
         /// 判断两个物品是否相等
@@ -70,9 +67,9 @@ namespace BBKRPGSimulator.Lib
         /// <returns></returns>
         public bool Equals(ResBase other)
         {
-            return other != null &&
-                   Index == other.Index &&
-                   Type == other.Type;
+            return other != null
+                   && Index == other.Index
+                   && Type == other.Type;
         }
 
         /// <summary>

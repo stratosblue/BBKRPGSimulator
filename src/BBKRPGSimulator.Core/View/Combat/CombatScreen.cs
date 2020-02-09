@@ -594,7 +594,7 @@ namespace BBKRPGSimulator.View.Combat
 
                                         if (item.MagicChain is ResMagicChain magicChain)
                                         {
-                                            magicChain.LearnCount = c.GetLearnMagicNum(cl + 1);
+                                            magicChain.LearnFromChain(c.GetLearnMagicNum(cl + 1));
                                         }
 
                                         item.Speed = item.Speed + c.GetSpeed(cl + 1) - c.GetSpeed(cl);

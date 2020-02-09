@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
-using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Combat;
 using BBKRPGSimulator.Definitions;
 using BBKRPGSimulator.Goods;
@@ -293,49 +291,27 @@ namespace BBKRPGSimulator
         /// <param name="stream"></param>
         public void Deserialize(BinaryReader binaryReader)
         {
-            SceneMap.SceneName = binaryReader.ReadString();
+            #region 此段数据为读取存档页面的展示数据
+
+            binaryReader.ReadString();
 
             int actorCount = binaryReader.ReadInt32();
 
             while (actorCount-- > 0)
             {
-                //HACK 读取出来不保存？
-                int t = binaryReader.ReadInt32();
+                binaryReader.ReadInt32();
             }
 
-            SceneMap.MapType = binaryReader.ReadInt32();
-            SceneMap.MapIndex = binaryReader.ReadInt32();
-            SceneMap.MapScreenX = binaryReader.ReadInt32();
-            SceneMap.MapScreenY = binaryReader.ReadInt32();
-            SceneMap.ScriptType = binaryReader.ReadInt32();
-            SceneMap.ScriptIndex = binaryReader.ReadInt32();
+            #endregion 此段数据为读取存档页面的展示数据
 
-            actorCount = binaryReader.ReadInt32();
+            SceneMap.Deserialize(binaryReader);
 
-            PlayContext.PlayerCharacters.Clear();
-            for (int i = 0; i < actorCount; i++)
-            {
-                PlayerCharacter p = new PlayerCharacter(this);
-                p.Deserialize(binaryReader);
-                PlayContext.PlayerCharacters.Add(p);
-            }
-
-            PlayContext.Money = binaryReader.ReadInt32();
+            PlayContext.Deserialize(binaryReader);
 
             GoodsManage.Deserialize(binaryReader);
 
-            int npcCount = binaryReader.ReadInt32();
-
-            SceneMap.SceneNPCs = new NPC[41];
-
-            for (int i = 0; i < npcCount; i++)
-            {
-                int npcId = binaryReader.ReadInt32();
-                SceneMap.SceneNPCs[npcId] = new NPC(this);
-                SceneMap.SceneNPCs[npcId].Deserialize(binaryReader);
-            }
-
             CombatManage.Deserialize(binaryReader);
+
             ScriptProcess.ScriptState.Deserialize(binaryReader);
         }
 
@@ -345,6 +321,8 @@ namespace BBKRPGSimulator
         /// <param name="stream"></param>
         public void Serialize(BinaryWriter binaryWriter)
         {
+            #region 此段数据为读取存档页面的展示数据
+
             binaryWriter.Write(SceneMap.SceneName);
 
             int actorCount = PlayContext.PlayerCharacters.Count;
@@ -356,37 +334,16 @@ namespace BBKRPGSimulator
                 binaryWriter.Write(PlayContext.PlayerCharacters[i].Index);
             }
 
-            binaryWriter.Write(SceneMap.MapType);
-            binaryWriter.Write(SceneMap.MapIndex);
-            binaryWriter.Write(SceneMap.MapScreenX);
-            binaryWriter.Write(SceneMap.MapScreenY);
-            binaryWriter.Write(SceneMap.ScriptType);
-            binaryWriter.Write(SceneMap.ScriptIndex);
-            binaryWriter.Write(PlayContext.PlayerCharacters.Count);
+            #endregion 此段数据为读取存档页面的展示数据
 
-            for (int i = 0; i < PlayContext.PlayerCharacters.Count; i++)
-            {
-                PlayContext.PlayerCharacters[i].Serialize(binaryWriter);
-            }
+            SceneMap.Serialize(binaryWriter);
 
-            binaryWriter.Write(PlayContext.Money);
+            PlayContext.Serialize(binaryWriter);
 
             GoodsManage.Serialize(binaryWriter);
 
-            var npcCount = SceneMap.SceneNPCs.Where(m => m != null).Count();
-
-            binaryWriter.Write(npcCount);
-
-            for (int i = 0; i < SceneMap.SceneNPCs.Length; i++)
-            {
-                if (SceneMap.SceneNPCs[i] != null)
-                {
-                    binaryWriter.Write(i);
-                    SceneMap.SceneNPCs[i].Serialize(binaryWriter);
-                }
-            }
-
             CombatManage.Serialize(binaryWriter);
+
             ScriptProcess.ScriptState.Serialize(binaryWriter);
         }
 

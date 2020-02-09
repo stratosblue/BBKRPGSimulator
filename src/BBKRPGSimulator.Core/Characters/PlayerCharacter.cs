@@ -7,6 +7,7 @@ using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
 using BBKRPGSimulator.Interface;
 using BBKRPGSimulator.Lib;
+using BBKRPGSimulator.Magic;
 
 namespace BBKRPGSimulator.Characters
 {
@@ -260,7 +261,11 @@ namespace BBKRPGSimulator.Characters
             MagicChain = Context.LibData.GetMagicChain(buf[offset + 0x17] & 0xff);
             if (MagicChain != null)
             {
-                MagicChain.LearnCount = buf[offset + 9] & 0xff;
+                MagicChain.LearnFromChain(buf[offset + 9] & 0xff);
+            }
+            else
+            {
+                MagicChain = new ResMagicChain(Context);
             }
             Name = buf.GetString(offset + 0x0a);
             Level = buf[offset + 0x20] & 0xff;
@@ -383,13 +388,12 @@ namespace BBKRPGSimulator.Characters
             SetStep(binaryReader.ReadInt32());
             SetPosInMap(binaryReader.ReadInt32(), binaryReader.ReadInt32());
 
-            var magicChainIndex = binaryReader.ReadInt32();
-            var magicLearnCount = binaryReader.ReadInt32();
+            var hasMagicChain = binaryReader.ReadBoolean();
 
-            if (magicChainIndex >= 0)
+            if (hasMagicChain)
             {
-                MagicChain = Context.LibData.GetMagicChain(magicChainIndex);
-                MagicChain.LearnCount = magicLearnCount;
+                MagicChain = new ResMagicChain(Context);
+                MagicChain.Deserialize(binaryReader);
             }
 
             Name = binaryReader.ReadString();
@@ -404,6 +408,7 @@ namespace BBKRPGSimulator.Characters
             Lingli = binaryReader.ReadInt32();
             Luck = binaryReader.ReadInt32();
             CurrentExp = binaryReader.ReadInt32();
+
             for (int i = 0; i < 8; i++)
             {
                 var type = binaryReader.ReadInt32();
@@ -424,8 +429,16 @@ namespace BBKRPGSimulator.Characters
             binaryWriter.Write(GetStep());
             binaryWriter.Write(PosInMap.X);
             binaryWriter.Write(PosInMap.Y);
-            binaryWriter.Write(MagicChain?.Index ?? -1);
-            binaryWriter.Write(MagicChain?.LearnCount ?? 0);
+
+            if (MagicChain != null)
+            {
+                binaryWriter.Write(true);
+                MagicChain.Serialize(binaryWriter);
+            }
+            else
+            {
+                binaryWriter.Write(false);
+            }
 
             binaryWriter.Write(Name);
             binaryWriter.Write(Level);

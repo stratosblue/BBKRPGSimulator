@@ -1,7 +1,9 @@
 ﻿using System;
 
+using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
+using BBKRPGSimulator.Magic;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -34,6 +36,10 @@ namespace BBKRPGSimulator.Script.Commands
         {
             #region 字段
 
+            private readonly PlayerCharacter _playerCharacter;
+
+            private readonly BaseMagic _magic;
+
             /// <summary>
             /// 是否有键按下
             /// </summary>
@@ -48,7 +54,6 @@ namespace BBKRPGSimulator.Script.Commands
 
             #region 属性
 
-            public ArraySegment<byte> Data { get; }
             private TextRender TextRender => Context.TextRender;
 
             #endregion 属性
@@ -59,7 +64,14 @@ namespace BBKRPGSimulator.Script.Commands
             {
                 _isAnyKeyDown = false;
                 _showTime = 0;
-                Data = data;
+
+                var actorId = data.Get2BytesUInt(0);
+                var type = data.Get2BytesUInt(2);
+                var index = data.Get2BytesUInt(4);
+
+                _magic = Context.LibData.GetMagic(type, index) ?? throw new ArgumentException();
+                _playerCharacter = Context.PlayContext.GetPlayer(actorId);
+                _playerCharacter.MagicChain.LearnMagic(type, index);
             }
 
             #endregion 构造函数
@@ -69,10 +81,7 @@ namespace BBKRPGSimulator.Script.Commands
             public override void Draw(ICanvas canvas)
             {
                 //TODO 修正显示
-                TextRender.DrawText(canvas, "学会了魔法:", 0, 0);
-                TextRender.DrawText(canvas, "actorId:" + Data.Get2BytesUInt(0)
-                        + "type" + Data.Get2BytesUInt(2)
-                        + "index" + Data.Get2BytesUInt(4), 0, 16);
+                TextRender.DrawText(canvas, $"{_playerCharacter.Name} 学会了魔法:{_magic.Name}", 0, 0);
             }
 
             public override void OnKeyUp(int key)

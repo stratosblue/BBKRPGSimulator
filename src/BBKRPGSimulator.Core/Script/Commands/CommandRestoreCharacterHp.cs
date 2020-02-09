@@ -15,7 +15,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 恢复角色HP命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandRestoreCharacterHp(ArraySegment<byte> data, SimulatorContext context) : base(4, context)
+        public CommandRestoreCharacterHp(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         { }
 
         #endregion 构造函数
