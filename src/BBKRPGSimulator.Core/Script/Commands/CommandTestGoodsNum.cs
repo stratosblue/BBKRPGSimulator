@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 测试物品数量命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandTestGoodsNum(ArraySegment<byte> data, SimulatorContext context) : base(10, context)
+        public CommandTestGoodsNum(ArraySegment<byte> data, SimulatorContext context) : base(data, 10, context)
         {
             _type = data.Get2BytesUInt(0);
             _index = data.Get2BytesUInt(2);

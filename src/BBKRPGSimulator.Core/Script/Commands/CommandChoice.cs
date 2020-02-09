@@ -96,11 +96,8 @@ namespace BBKRPGSimulator.Script.Commands
 
             public CommandChoiceOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                var start = data.Offset;
-                var code = data.Array;
-
-                _choice1 = code.GetStringBytes(start);
-                _choice2 = code.GetStringBytes(start + _choice1.Length);
+                _choice1 = data.GetStringBytes(0);
+                _choice2 = data.GetStringBytes(_choice1.Length);
 
                 _addrOffset = _choice1.Length + _choice2.Length;
 
@@ -113,7 +110,7 @@ namespace BBKRPGSimulator.Script.Commands
                 _backgroundX = (160 - _background.Width) / 2;
                 _backgroundY = (96 - _background.Height) / 2;
 
-                _address = code.Get2BytesUInt(start + _addrOffset);
+                _address = data.Get2BytesUInt(_addrOffset);
 
                 _selectedIndex = 0;
                 _hasSelected = false;

@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// SetTo命令?
         /// </summary>
         /// <param name="context"></param>
-        public CommandSetTo(ArraySegment<byte> data, SimulatorContext context) : base(4, context)
+        public CommandSetTo(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         {
             _varIndex1 = data.Get2BytesUInt(2);
             _varIndex2 = data.Get2BytesUInt(0);

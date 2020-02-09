@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 设置事件Timer命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandSetEventTimer(ArraySegment<byte> data, SimulatorContext context) : base(4, context)
+        public CommandSetEventTimer(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         {
             _timer = data.Get2BytesUInt(0);
             _eventId = data.Get2BytesUInt(2);

@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 属性测试命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandAttributeTest(ArraySegment<byte> data, SimulatorContext context) : base(10, context)
+        public CommandAttributeTest(ArraySegment<byte> data, SimulatorContext context) : base(data, 10, context)
         {
             _actorid = data.Get2BytesUInt(0);
             _type = data.Get2BytesUInt(2);

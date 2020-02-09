@@ -13,7 +13,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 删除物品命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandDeleteGoods(ArraySegment<byte> data, SimulatorContext context) : base(6, context)
+        public CommandDeleteGoods(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
         { }
 
         #endregion 构造函数

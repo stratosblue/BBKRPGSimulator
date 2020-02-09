@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 随机事件命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandRandRade(ArraySegment<byte> data, SimulatorContext context) : base(4, context)
+        public CommandRandRade(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         {
             _value = data.Get2BytesUInt(0);
             _address = data.Get2BytesUInt(2);

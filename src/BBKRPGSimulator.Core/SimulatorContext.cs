@@ -166,10 +166,7 @@ namespace BBKRPGSimulator
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="delay"></param>
-        public void ShowMessage(string msg, long delay)
-        {
-            PushScreen(new ScreenShowMessage(this, msg, delay));
-        }
+        internal void ShowMessage(string msg, long delay) => PushScreen(new ScreenShowMessage(this, msg, delay));
 
         /// <summary>
         /// 按键按下
@@ -180,7 +177,7 @@ namespace BBKRPGSimulator
             var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             if (now - _lastKeyPressedTime >= KeyInterval)
             {
-                ScreenStack.Peek().OnKeyDown(keyCode);
+                GetCurrentScreen().OnKeyDown(keyCode);
                 _lastKeyPressedTime = now;
             }
         }
@@ -189,10 +186,7 @@ namespace BBKRPGSimulator
         /// 按键放开
         /// </summary>
         /// <param name="keyCode"></param>
-        public void KeyReleased(int keyCode)
-        {
-            ScreenStack.Peek().OnKeyUp(keyCode);
-        }
+        public void KeyReleased(int keyCode) => GetCurrentScreen().OnKeyUp(keyCode);
 
         /// <summary>
         /// 屏幕转换
@@ -244,26 +238,51 @@ namespace BBKRPGSimulator
         /// 获取当前界面
         /// </summary>
         /// <returns></returns>
-        internal BaseScreen GetCurScreen()
-        {
-            return ScreenStack.Peek();
-        }
+        internal BaseScreen GetCurrentScreen() => ScreenStack.Peek();
 
         /// <summary>
         /// 弹出最后一个页面
         /// </summary>
-        internal void PopScreen()
-        {
-            ScreenStack.Pop();
-        }
+        internal void PopScreen() => ScreenStack.Pop();
 
         /// <summary>
         /// 添加新的界面
         /// </summary>
         /// <param name="screen"></param>
-        internal void PushScreen(BaseScreen screen)
+        internal void PushScreen(BaseScreen screen) => ScreenStack.Push(screen);
+
+        /// <summary>
+        /// 调用指定章节
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="index"></param>
+        internal void CallChapter(int type, int index)
         {
-            ScreenStack.Push(screen);
+            var process = new ScriptProcess(this)
+            {
+                PreScriptProcess = ScriptProcess,
+            };
+
+            process.LoadScript(type, index);
+
+            ScriptProcess = process;
+
+            process.ScriptRunning = true;
+            process.EnableExecuteScript = true;
+        }
+
+        /// <summary>
+        /// 返回章节
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="index"></param>
+        internal void ReturnChapter()
+        {
+            if (ScriptProcess.PreScriptProcess is null)
+            {
+                throw new MethodAccessException();
+            }
+            ScriptProcess = ScriptProcess.PreScriptProcess;
         }
 
         #region 序列化

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -19,7 +20,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 调用章节命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandCallChapter(ArraySegment<byte> data, SimulatorContext context) : base(4, context)
+        public CommandCallChapter(ArraySegment<byte> data, SimulatorContext context) : base(data, 4, context)
         {
             _type = data.Get2BytesUInt(0);
             _index = data.Get2BytesUInt(2);
@@ -31,8 +32,10 @@ namespace BBKRPGSimulator.Script.Commands
 
         protected override Operate ProcessAndGetOperate()
         {
-            //TODO 完成CommandCallChapterOperate 参照 cmd_callchapter
-            throw new NotImplementedException();
+            //HACK 测试是否正确
+            Debug.WriteLine("确认 CommandCallChapter 是否正常工作");
+            Context.CallChapter(_type, _index);
+            return null;
         }
 
         #endregion 方法

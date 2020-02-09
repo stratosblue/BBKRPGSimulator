@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 使用指定数量的物品命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandUseGoodsNum(ArraySegment<byte> data, SimulatorContext context) : base(8, context)
+        public CommandUseGoodsNum(ArraySegment<byte> data, SimulatorContext context) : base(data, 8, context)
         {
             _type = data.Get2BytesUInt(0);
             _index = data.Get2BytesUInt(2);

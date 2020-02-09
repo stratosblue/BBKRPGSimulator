@@ -22,7 +22,7 @@ namespace BBKRPGSimulator.Script.Commands
 
         protected override Operate ProcessAndGetOperate()
         {
-            var money = Data.Array.Get4BytesInt(Data.Offset);
+            var money = Data.Get4BytesInt(0);
             Context.PlayContext.Money -= money;
             return null;
         }

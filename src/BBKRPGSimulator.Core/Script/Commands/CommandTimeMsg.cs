@@ -18,15 +18,7 @@ namespace BBKRPGSimulator.Script.Commands
         public CommandTimeMsg(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
             //TODO 这里还需要验证
-            var start = data.Offset;
-            var code = data.Array;
-
-            int i = 2;
-            while (code[start + i] != 0)
-            {
-                ++i;
-            }
-            Length = i + 1;
+            Length = data.GetStringLength(2) + 2;
         }
 
         #endregion 构造函数
@@ -56,11 +48,8 @@ namespace BBKRPGSimulator.Script.Commands
 
             public CommandTimeMsgOperate(ArraySegment<byte> data, SimulatorContext context) : base(context)
             {
-                var start = data.Offset;
-                var code = data.Array;
-
                 _time = data.Get2BytesUInt(0);
-                _message = code.GetString(start + 2);
+                _message = data.GetString(2);
 
                 _downKey = SimulatorKeys.KEY_INVALID;
                 _isAnyKeyDown = false;

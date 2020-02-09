@@ -42,6 +42,11 @@ namespace BBKRPGSimulator.Script
         /// </summary>
         public ScriptResources ScriptState { get; private set; }
 
+        /// <summary>
+        /// 上一个ScriptProcess
+        /// </summary>
+        public ScriptProcess PreScriptProcess { get; set; }
+
         #endregion 属性
 
         #region 构造函数

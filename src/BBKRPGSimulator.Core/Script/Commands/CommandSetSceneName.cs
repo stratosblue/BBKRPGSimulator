@@ -19,19 +19,11 @@ namespace BBKRPGSimulator.Script.Commands
         /// 设置场景名称命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandSetSceneName(ArraySegment<byte> data, SimulatorContext context) : base(-1, context)
+        public CommandSetSceneName(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
-            var start = data.Offset;
-            var code = data.Array;
+            Length = data.GetStringLength(0);
 
-            int i = 0;
-            while (code[start + i] != 0)
-            {
-                ++i;
-            }
-            Length = i + 1;
-
-            _name = code.GetString(start);
+            _name = data.GetString(0);
         }
 
         #endregion 构造函数

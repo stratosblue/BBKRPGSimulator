@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// 属性设置命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandAttributeSet(ArraySegment<byte> data, SimulatorContext context) : base(6, context)
+        public CommandAttributeSet(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
         {
             _actorid = data.Get2BytesUInt(0);
             _type = data.Get2BytesUInt(2);

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -15,7 +15,6 @@ namespace BBKRPGSimulator.Script.Commands
         /// <param name="context"></param>
         public CommandReturn(SimulatorContext context) : base(0, context)
         {
-            //TODO 完成返回 参照 cmd_return
         }
 
         #endregion 构造函数
@@ -24,7 +23,11 @@ namespace BBKRPGSimulator.Script.Commands
 
         protected override Operate ProcessAndGetOperate()
         {
-            throw new NotImplementedException();
+            //HACK 测试是否正确
+            Debug.WriteLine("确认 CommandReturn 是否正常工作");
+            Context.ReturnChapter();
+
+            return null;
         }
 
         #endregion 方法

@@ -19,7 +19,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// ???
         /// </summary>
         /// <param name="context"></param>
-        public CommandDisCmp(ArraySegment<byte> data, SimulatorContext context) : base(8, context)
+        public CommandDisCmp(ArraySegment<byte> data, SimulatorContext context) : base(data, 8, context)
         {
             _varIndex = data.Get2BytesUInt(0);
             _value = data.Get2BytesUInt(2);

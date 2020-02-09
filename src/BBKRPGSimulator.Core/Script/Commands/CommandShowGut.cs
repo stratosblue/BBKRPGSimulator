@@ -20,14 +20,7 @@ namespace BBKRPGSimulator.Script.Commands
         /// <param name="context"></param>
         public CommandShowGut(ArraySegment<byte> data, SimulatorContext context) : base(data, -1, context)
         {
-            var start = data.Offset;
-            var code = data.Array;
-            int i = 4;
-            while (code[start + i] != 0)
-            {
-                ++i;
-            }
-            Length = i + 1;
+            Length = data.GetStringLength(4) + 4;
         }
 
         #endregion 构造函数

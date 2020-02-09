@@ -19,13 +19,10 @@ namespace BBKRPGSimulator.Script.Commands
         /// 测试金钱命令
         /// </summary>
         /// <param name="context"></param>
-        public CommandTestMoney(ArraySegment<byte> data, SimulatorContext context) : base(6, context)
+        public CommandTestMoney(ArraySegment<byte> data, SimulatorContext context) : base(data, 6, context)
         {
-            var start = data.Offset;
-            var code = data.Array;
-
-            _value = code.Get4BytesInt(start);
-            _address = code.Get2BytesUInt(start + 4);
+            _value = data.Get4BytesInt(0);
+            _address = data.Get2BytesUInt(4);
         }
 
         #endregion 构造函数

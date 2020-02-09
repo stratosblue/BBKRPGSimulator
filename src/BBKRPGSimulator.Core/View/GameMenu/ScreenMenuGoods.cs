@@ -162,7 +162,7 @@ namespace BBKRPGSimulator.View.GameMenu
                 case 13: // 土遁
                          // TODO 迷宫中的用法，调用脚本
                     Context.ScriptProcess.TriggerEvent(255);
-                    while (!(Context.GetCurScreen() is ScreenMainGame))
+                    while (!(Context.GetCurrentScreen() is ScreenMainGame))
                     {
                         Context.PopScreen();
                     }
