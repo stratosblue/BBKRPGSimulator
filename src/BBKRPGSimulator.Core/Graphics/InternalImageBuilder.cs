@@ -25,18 +25,8 @@ namespace BBKRPGSimulator.Graphics
         /// <param name="data"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        public InternalImageBuilder(int[] data, int width, int height) : base(data, width, height)
+        public InternalImageBuilder(byte[] data, int width, int height) : base(data, width, height)
         {
-            var length = width * height;
-            if (data.Length == length)
-            {
-                Data = PixelsToBuffer(data);
-            }
-            else
-            {
-                Data = new byte[width * height * 4];
-                data.CopyTo(Data, 0);
-            }
         }
 
         #endregion 构造函数
@@ -50,12 +40,11 @@ namespace BBKRPGSimulator.Graphics
         /// <param name="top"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <param name="imageBuffer"></param>
         /// <param name="offset"></param>
         /// <param name="stride"></param>
-        public override void SetPixels(int left, int top, int width, int height, int[] pixels, int offset, int stride)
+        public override void SetPixels(int left, int top, int width, int height, byte[] pixels, int offset, int stride)
         {
-            var imageBuffer = PixelsToBuffer(pixels);
+            var imageBuffer = pixels;
 
             //像素数组的游标
             int bufferIndex = 0;
@@ -144,7 +133,7 @@ namespace BBKRPGSimulator.Graphics
         /// <param name="y2">终止y坐标</param>
         public override void DrawLine(int color, int x1, int y1, int x2, int y2)
         {
-            ColorToArgb(color, out var a, out var r, out var g, out var b);
+            ImageBuilderUtil.ColorToArgb(color, out var a, out var r, out var g, out var b);
             int index = 0;
 
             if (x1 != x2 && y1 != y2)
@@ -264,7 +253,7 @@ namespace BBKRPGSimulator.Graphics
         /// <param name="height">填充的高度</param>
         public override void FillRectangle(int color, int left, int top, int width, int height)
         {
-            ColorToArgb(color, out var a, out var r, out var g, out var b);
+            ImageBuilderUtil.ColorToArgb(color, out var a, out var r, out var g, out var b);
 
             for (int v = 0; v < height; v++)    //控制行
             {

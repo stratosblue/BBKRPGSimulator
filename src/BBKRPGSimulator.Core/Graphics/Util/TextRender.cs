@@ -331,7 +331,7 @@ namespace BBKRPGSimulator.Graphics.Util
                 _wordPixels[k | 6] = (t & 0x02) != 0 ? colorBlack : colorWhite;
                 _wordPixels[k | 7] = (t & 0x01) != 0 ? colorBlack : colorWhite;
             }
-            _ascBitmapBuilder.SetPixels(0, 0, 8, 16, _wordPixels, 0, 8);
+            _ascBitmapBuilder.SetPixels(0, 0, 8, 16, ImageBuilderUtil.PixelsToBuffer(_wordPixels), 0, 8);
             return _ascBitmapBuilder;
         }
 
@@ -364,7 +364,7 @@ namespace BBKRPGSimulator.Graphics.Util
                 _wordPixels[k | 6] = (t & 0x02) != 0 ? colorBlack : colorWhite;
                 _wordPixels[k | 7] = (t & 0x01) != 0 ? colorBlack : colorWhite;
             }
-            _hzkBitmapBuilder.SetPixels(0, 0, 16, 16, _wordPixels, 0, 16);
+            _hzkBitmapBuilder.SetPixels(0, 0, 16, 16, ImageBuilderUtil.PixelsToBuffer(_wordPixels), 0, 16);
             return _hzkBitmapBuilder;
         }
 

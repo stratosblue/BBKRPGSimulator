@@ -190,7 +190,7 @@ namespace BBKRPGSimulator.Lib
                             ++iOfData;
                         }
                     }
-                    _bitmaps[i] = Context.GraphicsFactory.NewImageBuilder(tmp, Width, Height);
+                    _bitmaps[i] = Context.GraphicsFactory.NewImageBuilder(ImageBuilderUtil.IntegerArrayToImageBytes(tmp, Width, Height), Width, Height);
                 } // for mNumber
             }
             else
@@ -216,7 +216,7 @@ namespace BBKRPGSimulator.Lib
                             ++iOfData;
                         }
                     } // end for (int y = ...
-                    _bitmaps[i] = Context.GraphicsFactory.NewImageBuilder(tmp, Width, Height);
+                    _bitmaps[i] = Context.GraphicsFactory.NewImageBuilder(ImageBuilderUtil.IntegerArrayToImageBytes(tmp, Width, Height), Width, Height);
                 } // end for (int i = ...*/
             } // end if
         }

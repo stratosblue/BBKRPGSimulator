@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
+using BBKRPGSimulator.Graphics;
+
 namespace BBKRPGSimulator.Winform
 {
     public partial class MainForm : Form

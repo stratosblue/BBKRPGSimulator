@@ -3,7 +3,7 @@
     /// <summary>
     /// 保存读取操作
     /// </summary>
-    public enum SaveLoadOperate
+    internal enum SaveLoadOperate
     {
         /// <summary>
         /// 保存进度

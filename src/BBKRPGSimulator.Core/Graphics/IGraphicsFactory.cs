@@ -32,7 +32,7 @@
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        ImageBuilder NewImageBuilder(int[] data, int width, int height);
+        ImageBuilder NewImageBuilder(byte[] data, int width, int height);
 
         #endregion 方法
     }

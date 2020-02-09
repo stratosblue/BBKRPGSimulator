@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 
+using BBKRPGSimulator.Graphics;
+
 namespace BBKRPGSimulator.Winform
 {
     /// <summary>
@@ -44,7 +46,7 @@ namespace BBKRPGSimulator.Winform
         /// <param name="data"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        public NewImageBuilder(int[] data, int width, int height) : base(data, width, height)
+        public NewImageBuilder(byte[] data, int width, int height) : base(data, width, height)
         {
             Instance = new Bitmap(width, height, DEFAULT_PIXEL_FORMAT);
             SetPixels(0, 0, width, height, data, 0, 0);
@@ -96,9 +98,9 @@ namespace BBKRPGSimulator.Winform
             return Instance == null ? 0 : Instance.Width;
         }
 
-        public override void SetPixels(int left, int top, int width, int height, int[] pixels, int offset, int stride)
+        public override void SetPixels(int left, int top, int width, int height, byte[] pixels, int offset, int stride)
         {
-            var buffer = PixelsToBuffer(pixels);
+            var buffer = pixels;
             //锁定内存数据
             BitmapData data = Instance.LockBits(
                 new Rectangle(left, top, width, height),

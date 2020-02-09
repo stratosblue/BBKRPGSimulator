@@ -1,6 +1,6 @@
 ﻿namespace BBKRPGSimulator.Graphics
 {
-    public class DefaultGraphicsFactory : IGraphicsFactory
+    internal class DefaultGraphicsFactory : IGraphicsFactory
     {
         #region 方法
 
@@ -10,7 +10,7 @@
 
         public ImageBuilder NewImageBuilder(int width, int height) => new InternalImageBuilder(width, height);
 
-        public ImageBuilder NewImageBuilder(int[] data, int width, int height) => new InternalImageBuilder(data, width, height);
+        public ImageBuilder NewImageBuilder(byte[] data, int width, int height) => new InternalImageBuilder(data, width, height);
 
         #endregion 方法
     }

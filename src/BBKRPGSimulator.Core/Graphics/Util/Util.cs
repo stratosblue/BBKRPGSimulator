@@ -198,7 +198,7 @@ namespace BBKRPGSimulator.Graphics.Util
                     w,w,b,b,w,w,w,w,w,w,b,w,w,w,w,w,b,b,b,b,b,w,
                     w,w,w,w,w,w,w,w,w,w,w,w,w,w,w,w,w,w,b,b,w,w,
             };
-                bmpChuandai.SetPixels(0, 0, 22, 39, pixels, 0, 22);
+                bmpChuandai.SetPixels(0, 0, 22, 39, ImageBuilderUtil.PixelsToBuffer(pixels), 0, 22);
             }
         }
 

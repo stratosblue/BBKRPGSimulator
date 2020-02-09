@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 
+using BBKRPGSimulator.Graphics;
+
 namespace BBKRPGSimulator.Winform
 {
     public static class PlatformExtensionFunction
