@@ -1,6 +1,6 @@
-﻿using BBKRPGSimulator.GameMenu;
-using BBKRPGSimulator.Goods;
+﻿using BBKRPGSimulator.Goods;
 using BBKRPGSimulator.View;
+using BBKRPGSimulator.View.GameMenu;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -35,7 +35,7 @@ namespace BBKRPGSimulator.Script.Commands
             {
                 if (goods is GoodsDrama)
                 {
-                    Context.Util.ShowMessage("任务物品!", 1000);
+                    Context.ShowMessage("任务物品!", 1000);
                 }
                 else
                 {

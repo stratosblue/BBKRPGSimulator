@@ -6,13 +6,11 @@ using System.Linq;
 using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Combat;
 using BBKRPGSimulator.Definitions;
-using BBKRPGSimulator.GameMenu;
 using BBKRPGSimulator.Goods;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
 using BBKRPGSimulator.Interface;
 using BBKRPGSimulator.Lib;
-using BBKRPGSimulator.Scene;
 using BBKRPGSimulator.Script;
 using BBKRPGSimulator.View;
 
@@ -164,6 +162,16 @@ namespace BBKRPGSimulator
         #region 方法
 
         /// <summary>
+        /// 显示消息
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="delay"></param>
+        public void ShowMessage(string msg, long delay)
+        {
+            PushScreen(new ScreenShowMessage(this, msg, delay));
+        }
+
+        /// <summary>
         /// 按键按下
         /// </summary>
         /// <param name="keyCode"></param>
@@ -205,7 +213,7 @@ namespace BBKRPGSimulator
                     break;
 
                 case ScreenEnum.SCREEN_MENU:
-                    screen = new ScreenMenu(this);
+                    screen = new ScreenMenuStart(this);
                     break;
 
                 case ScreenEnum.SCREEN_MAIN_GAME:

@@ -1,8 +1,8 @@
 ﻿using System;
 
-using BBKRPGSimulator.GameMenu;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.View;
+using BBKRPGSimulator.View.GameMenu;
 
 namespace BBKRPGSimulator.Script.Commands
 {

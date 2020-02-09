@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using BBKRPGSimulator.GameMenu;
 using BBKRPGSimulator.Goods;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.View;
+using BBKRPGSimulator.View.GameMenu;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -75,7 +75,7 @@ namespace BBKRPGSimulator.Script.Commands
                 {
                     if (Context.PlayContext.Money < goods.BuyPrice)
                     {
-                        Context.Util.ShowMessage("金钱不足!", 1000);
+                        Context.ShowMessage("金钱不足!", 1000);
                     }
                     else
                     {

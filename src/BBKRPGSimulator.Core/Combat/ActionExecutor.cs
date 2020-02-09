@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Combat.Actions;
 using BBKRPGSimulator.Graphics;
-using BBKRPGSimulator.Screens.Combat;
+using BBKRPGSimulator.View.Combat;
 
 namespace BBKRPGSimulator.Combat
 {

@@ -1,4 +1,4 @@
-﻿using BBKRPGSimulator.GameMenu;
+﻿using BBKRPGSimulator.View;
 
 namespace BBKRPGSimulator.Script.Commands
 {

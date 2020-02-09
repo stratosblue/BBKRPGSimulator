@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Goods;
 using BBKRPGSimulator.Graphics;
-using BBKRPGSimulator.Screens.Combat;
 using BBKRPGSimulator.View;
+using BBKRPGSimulator.View.Combat;
 
 namespace BBKRPGSimulator.Combat.Ui
 {

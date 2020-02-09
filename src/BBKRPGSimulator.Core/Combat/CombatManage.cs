@@ -3,7 +3,7 @@
 using BBKRPGSimulator.Definitions;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Interface;
-using BBKRPGSimulator.Screens.Combat;
+using BBKRPGSimulator.View.Combat;
 
 namespace BBKRPGSimulator.Combat
 {

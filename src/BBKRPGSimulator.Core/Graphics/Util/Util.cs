@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Drawing;
 
 using BBKRPGSimulator.Lib;
-using BBKRPGSimulator.View;
 
 namespace BBKRPGSimulator.Graphics.Util
 {
@@ -228,6 +227,7 @@ namespace BBKRPGSimulator.Graphics.Util
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+                throw;
             }
         }
 
@@ -244,68 +244,6 @@ namespace BBKRPGSimulator.Graphics.Util
             TextRender.DrawText(canvas, msg, 0, new Rectangle(16, textY, 16 * 8, 16 * lineNum + 16));
         }
 
-        public void ShowMessage(string msg, long delay)
-        {
-            Context.PushScreen(new ShowMessageScreen(Context, msg, delay));
-        }
-
         #endregion 方法
-
-        #region 类
-
-        private class ShowMessageScreen : BaseScreen
-        {
-            #region 字段
-
-            private long cnt = 0;
-            private long delay;
-            private string msg;
-
-            #endregion 字段
-
-            #region 构造函数
-
-            public ShowMessageScreen(SimulatorContext context, string _msg, long _delay) : base(context)
-            {
-                msg = _msg;
-                delay = _delay;
-            }
-
-            #endregion 构造函数
-
-            #region 方法
-
-            public override void Draw(ICanvas canvas)
-            {
-                Context.Util.ShowMessage(canvas, msg);
-            }
-
-            public override bool IsPopup()
-            {
-                return true;
-            }
-
-            public override void OnKeyDown(int key)
-            {
-                Context.PopScreen();
-            }
-
-            public override void OnKeyUp(int key)
-            {
-            }
-
-            public override void Update(long delta)
-            {
-                cnt += delta;
-                if (cnt > delay)
-                {
-                    Context.PopScreen();
-                }
-            }
-
-            #endregion 方法
-        }
-
-        #endregion 类
     }
 }
