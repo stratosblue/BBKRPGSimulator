@@ -1,9 +1,9 @@
 ﻿using System;
 
-using BBKRPGSimulator.Characters;
 using BBKRPGSimulator.Graphics;
 using BBKRPGSimulator.Graphics.Util;
-using BBKRPGSimulator.Magic;
+using BBKRPGSimulator.View;
+using BBKRPGSimulator.View.Combat;
 
 namespace BBKRPGSimulator.Script.Commands
 {
@@ -36,9 +36,7 @@ namespace BBKRPGSimulator.Script.Commands
         {
             #region 字段
 
-            private readonly PlayerCharacter _playerCharacter;
-
-            private readonly BaseMagic _magic;
+            private readonly BaseScreen _learnShowScreen;
 
             /// <summary>
             /// 是否有键按下
@@ -69,30 +67,25 @@ namespace BBKRPGSimulator.Script.Commands
                 var type = data.Get2BytesUInt(2);
                 var index = data.Get2BytesUInt(4);
 
-                _magic = Context.LibData.GetMagic(type, index) ?? throw new ArgumentException();
-                _playerCharacter = Context.PlayContext.GetPlayer(actorId);
-                _playerCharacter.MagicChain.LearnMagic(type, index);
+                var magic = Context.LibData.GetMagic(type, index) ?? throw new ArgumentException();
+                var playerCharacter = Context.PlayContext.GetPlayer(actorId);
+                playerCharacter.MagicChain.LearnMagic(type, index);
+
+                _learnShowScreen = new LearnMagicScreen(Context, playerCharacter.Name, magic.Name);
             }
 
             #endregion 构造函数
 
             #region 方法
 
-            public override void Draw(ICanvas canvas)
-            {
-                //TODO 修正显示
-                TextRender.DrawText(canvas, $"{_playerCharacter.Name} 学会了魔法:{_magic.Name}", 0, 0);
-            }
+            public override void Draw(ICanvas canvas) => _learnShowScreen.Draw(canvas);
 
-            public override void OnKeyUp(int key)
-            {
-                _isAnyKeyDown = true;
-            }
+            public override void OnKeyUp(int key) => _isAnyKeyDown = true;
 
             public override bool Update(long delta)
             {
                 _showTime += delta;
-                return _showTime < 1000 && !_isAnyKeyDown;
+                return _showTime < 1500 && !_isAnyKeyDown;
             }
 
             #endregion 方法

@@ -33,6 +33,10 @@ namespace BBKRPGSimulator.Script.Commands
 
             private bool _end = false;
 
+            #endregion 字段
+
+            #region 构造函数
+
             public CommandGameSaveOperate(SimulatorContext context) : base(context)
             {
                 _end = false;
@@ -42,7 +46,7 @@ namespace BBKRPGSimulator.Script.Commands
                 });
             }
 
-            #endregion 字段
+            #endregion 构造函数
 
             #region 方法
 
